@@ -90,6 +90,15 @@ button:disabled { opacity: .5; cursor: default; }
   .hero { --scan: 4px; --dot: 8px; }
 }
 .hero-video { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+/* Very wide screens (21:9 and up): show the video at its own 16:9 shape in the centre and fade its sides into the mesh, instead of stretching it 3–4×. */
+@media (min-aspect-ratio: 21/9) {
+  .hero { background: var(--void); }
+  .hero-video {
+    left: 50%; right: auto; width: auto; aspect-ratio: 16 / 9; transform: translateX(-50%);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  }
+}
 .hero-mesh {
   position: absolute; inset: 0; z-index: -2; pointer-events: none; mix-blend-mode: screen;
   background:
