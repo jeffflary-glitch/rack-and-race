@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rack &amp; Race</title>
+<meta name="description" content="A 30-lap plan from PC builder to data center technician: three 1-hour sessions a week, a brick-built rack that fills as you go.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&family=Saira:ital,wdth,wght@0,75..100,500..900;1,75..100,500..900&display=swap">
+<style>
+/* Layout: a pit wall. Hero with the race track, three instrument panels, then the race plan beside a 42U rack that fills brick by brick. */
+:root {
+  --carbon: #0f1317;
+  --panel: #161c22;
+  --line: #2a343e;
+  --silver: #d3dae1;
+  --bright: #eef2f5;
+  --muted: #8d99a5;
+  --teal: #1cc5b3;
+  --gold: #f6b93b;
+  --navy: #14294a;
+  --navy-deep: #0c1c34;
+  --red: #e0533a;
+  --p1: #c3ccd5;
+  --p2: var(--teal);
+  --p3: var(--gold);
+  --p4: var(--red);
+  --display: "Saira", "Arial Narrow", sans-serif;
+  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--carbon); color: var(--silver); font: 400 16px/1.55 var(--body); }
+.wrap {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--teal); }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); font-stretch: 75%; text-wrap: balance; margin: 0; line-height: 1.05; color: var(--bright); }
+h2 { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; font-style: italic; text-transform: uppercase; }
+p { margin: 0; }
+.label { font-family: var(--mono); font-size: .72rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.lead { max-width: 60ch; color: var(--silver); }
+button {
+  font: 700 .95rem var(--display); font-stretch: 90%; letter-spacing: .06em; text-transform: uppercase;
+  border: 1px solid var(--line); background: var(--panel); color: var(--bright);
+  padding: 10px 16px; border-radius: 4px; cursor: pointer;
+}
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--teal); border-color: var(--teal); color: #06231f; }
+button.primary:hover { filter: brightness(1.08); }
+button:disabled { opacity: .5; cursor: default; }
+
+/* Hero */
+.hero {
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.28) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, #151b21, var(--carbon));
+  border-bottom: 1px solid var(--line);
+}
+.hero .wrap { padding-block: 40px 28px; display: grid; gap: 24px; }
+.hero-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
+h1 { font-size: clamp(3.4rem, 12vw, 7.5rem); font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -.01em; }
+h1 .amp { color: var(--teal); }
+.hero .lead { font-size: 1.1rem; margin-top: 12px; }
+.driver { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
+#driver {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 4px; color: var(--bright);
+  font: 800 1.05rem var(--display); font-stretch: 90%; letter-spacing: .06em; text-transform: uppercase;
+  padding: 8px 12px; width: min(260px, 100%);
+}
+#driver::placeholder { color: var(--muted); }
+.readout { text-align: right; }
+.lap { font-family: var(--mono); font-weight: 700; font-size: clamp(2.6rem, 8vw, 4.6rem); color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
+.lap .of { color: var(--muted); font-size: .45em; }
+.cal { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+
+.track {
+  position: relative; height: 72px; border-radius: 6px; overflow: hidden;
+  background: #20262c; border-block: 3px solid #39434d;
+}
+.track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed rgba(255,255,255,.16); }
+.ticks {
+  position: absolute; left: 0; right: 22px; top: 0; height: 10px;
+  background: linear-gradient(90deg, rgba(255,255,255,.22) 0 1px, transparent 1px) 0 0 / calc(100% / 30) 100% repeat-x;
+}
+.start { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--bright); }
+.finish {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 22px;
+  background: conic-gradient(var(--bright) 25%, #111 0 50%, var(--bright) 0 75%, #111 0) 0 0 / 11px 11px;
+}
+.marker { position: absolute; top: 0; bottom: 0; width: 3px; left: calc((100% - 22px) * 20 / 30); background: var(--gold); }
+.car {
+  position: absolute; top: 50%; width: 96px; height: 40px;
+  left: calc((100% - 22px - 96px) * var(--p, 0));
+  transform: translateY(-50%);
+  transition: left .9s cubic-bezier(.2, .8, .2, 1);
+}
+.track-legend { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.track-legend .gold { color: var(--gold); }
+.next { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+.next strong { color: var(--bright); }
+.flag {
+  font: 900 italic 1.4rem var(--display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .04em;
+  color: #111; background: var(--gold); padding: 10px 16px; border-radius: 4px;
+}
+
+/* Pit wall */
+.pitwall .wrap { padding-block: 32px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
+.stack { display: grid; gap: 20px; align-content: start; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: grid; gap: 14px; align-content: start; }
+.panel h3 { font-size: 1.6rem; font-weight: 800; font-style: italic; text-transform: uppercase; }
+
+.lights { display: flex; gap: 10px; }
+.light { width: 28px; height: 28px; border-radius: 50%; background: #2a1414; border: 2px solid #3d2222; }
+.light.on { background: #ff3b30; border-color: #ff6a60; box-shadow: 0 0 14px #ff3b30; }
+.clock { font: 700 clamp(3.2rem, 10vw, 5rem)/1 var(--mono); color: var(--bright); font-variant-numeric: tabular-nums; }
+.seg-name { font: 800 italic 1.4rem var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--teal); }
+.segbar { display: flex; gap: 4px; }
+.seg { height: 10px; background: #252d35; border-radius: 2px; overflow: hidden; }
+.seg span { display: block; height: 100%; width: 0; background: var(--teal); }
+.seg.past span { width: 100%; background: var(--muted); }
+.seg-labels { display: flex; gap: 4px; }
+.seg-labels span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.scoreboard { background: var(--navy); border-color: #27497a; }
+.scoreboard h3 { color: var(--bright); }
+.score { width: 100%; border-collapse: separate; border-spacing: 4px; font-family: var(--mono); }
+.score th { font-size: .72rem; font-weight: 500; letter-spacing: .1em; color: #b9c7da; text-align: center; padding: 2px; }
+.score th[scope="row"] { text-align: left; }
+.score td {
+  background: var(--navy-deep); color: var(--gold); text-align: center; font-weight: 700; font-size: 1.5rem;
+  padding: 6px 0; border-radius: 3px; font-variant-numeric: tabular-nums;
+}
+.score td.tot { color: var(--bright); }
+.score .of { display: block; font-size: .65rem; color: #7f93b0; font-weight: 500; }
+
+.pitboard { background: #0a0c0e; border: 6px solid #3a444e; }
+.board-msg { font: 800 italic clamp(1.4rem, 3.4vw, 1.9rem)/1.15 var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--gold); min-height: 2.3em; }
+
+/* Race plan */
+.plan .wrap { padding-block: 8px 48px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+.plan-head { display: grid; gap: 10px; margin-bottom: 20px; }
+.phases { display: grid; gap: 20px; }
+.phase { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow: hidden; }
+.phase-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 3px solid var(--c); }
+.phase-no {
+  width: 40px; height: 40px; border-radius: 4px; background: var(--c); color: #0b0e11;
+  display: grid; place-items: center; font: 900 italic 1.4rem var(--display);
+}
+.phase-head h3 { font-size: 1.5rem; font-weight: 800; font-style: italic; text-transform: uppercase; }
+.phase-count { font: 700 1rem var(--mono); color: var(--c); font-variant-numeric: tabular-nums; }
+.items { list-style: none; margin: 0; padding: 0; }
+.item + .item { border-top: 1px solid var(--line); }
+.item label { display: grid; grid-template-columns: auto 3.2em minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; cursor: pointer; }
+.item label:hover { background: rgba(255,255,255,.02); }
+.item input {
+  appearance: none; -webkit-appearance: none; margin: 1px 0 0; width: 24px; height: 22px; border-radius: 4px;
+  border: 2px solid var(--c); background: transparent; cursor: pointer; display: grid; place-items: center;
+}
+.item input::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: transparent; }
+.item input:checked { background: var(--c); }
+.item input:checked::after { background: rgba(0,0,0,.28); box-shadow: inset 0 -2px 0 rgba(255,255,255,.35); }
+.tag { font: 700 .9rem var(--mono); color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.item.milestone .tag { color: var(--c); }
+.text { display: grid; gap: 2px; min-width: 0; }
+.title { color: var(--bright); font-weight: 700; }
+.sat { color: var(--muted); font-size: .92rem; }
+.item.done .title { color: var(--muted); font-weight: 400; }
+.chip {
+  justify-self: start; font: 700 .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase;
+  color: #111; background: var(--gold); padding: 2px 6px; border-radius: 3px; margin-top: 4px;
+}
+
+.rack-panel { position: sticky; top: 16px; }
+.racked { font: 700 2rem/1 var(--mono); color: var(--bright); font-variant-numeric: tabular-nums; }
+.racked .of { font-size: .5em; color: var(--muted); }
+.rack { display: grid; gap: 4px; }
+.slots {
+  display: flex; flex-direction: column-reverse; gap: 2px; padding: 6px;
+  background: #0b0e11; border: 1px solid var(--line);
+  border-inline: 8px solid #3a444e;
+}
+.slot { height: 11px; border-radius: 2px; background: #182027; }
+.slot.on {
+  background:
+    radial-gradient(circle, rgba(255,255,255,.38) 2px, transparent 2.6px) 6px 50% / 14px 100% repeat-x,
+    var(--c);
+}
+.slot.drop { animation: drop .5s cubic-bezier(.2, .9, .3, 1.3); }
+@keyframes drop { from { transform: translateY(-26px); opacity: 0; } }
+.rack-ends { display: flex; justify-content: space-between; }
+
+/* The job */
+.job .wrap { padding-block: 8px 48px; display: grid; gap: 20px; }
+.moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+.move { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--silver); border-radius: 6px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.move.home { border-top-color: var(--teal); }
+.move b { font: 900 italic 2rem/1 var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--bright); }
+.move .chip { background: var(--teal); }
+
+/* Links */
+.crew .wrap { padding-block: 8px 48px; display: grid; gap: 20px; }
+.groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.group { display: grid; gap: 10px; }
+.link {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; text-decoration: none;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px;
+}
+.link:hover { border-color: var(--teal); }
+.link .name { color: var(--bright); font-weight: 700; }
+.link .why { grid-column: 1; color: var(--muted); font-size: .92rem; }
+.link .go { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--teal); font: 700 1.2rem var(--mono); }
+
+footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+.confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+
+@media (max-width: 900px) {
+  .pitwall .wrap { grid-template-columns: minmax(0, 1fr); }
+  .plan .wrap { grid-template-columns: minmax(0, 1fr); }
+  .rack-panel { position: static; order: -1; }
+  .slot { height: 7px; }
+  .moves { grid-template-columns: minmax(0, 1fr); }
+  .groups { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .hero-top { grid-template-columns: minmax(0, 1fr); }
+  .readout { text-align: left; }
+  .seg-labels { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .car { transition: none; }
+  .slot.drop { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <p class="label">Data center technician program · 3 hours a week</p>
+        <h1>Rack <span class="amp">&amp;</span> Race</h1>
+        <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every tick racks a brick.</p>
+        <div class="driver">
+          <label class="label" for="driver">Driver</label>
+          <input id="driver" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
+        </div>
+      </div>
+      <div class="readout">
+        <p class="label">Current lap</p>
+        <p class="lap"><span id="lap-now">01</span><span class="of"> / 30</span></p>
+        <p class="cal" id="cal"></p>
+      </div>
+    </div>
+
+    <div>
+      <div class="track" role="img" id="track" aria-label="Race progress">
+        <span class="ticks"></span>
+        <span class="start"></span>
+        <span class="marker"></span>
+        <span class="finish"></span>
+        <svg class="car" id="car" viewBox="0 0 96 40" aria-hidden="true">
+          <rect x="2" y="8" width="10" height="14" rx="1" fill="#c3ccd5"/>
+          <rect x="8" y="18" width="76" height="10" rx="1" fill="#1cc5b3"/>
+          <rect x="84" y="21" width="10" height="6" rx="1" fill="#1cc5b3"/>
+          <rect x="14" y="15" width="6" height="3" fill="#5fe0d2"/>
+          <rect x="24" y="15" width="6" height="3" fill="#5fe0d2"/>
+          <rect x="60" y="15" width="6" height="3" fill="#5fe0d2"/>
+          <rect x="70" y="15" width="6" height="3" fill="#5fe0d2"/>
+          <rect x="36" y="12" width="20" height="6" rx="1" fill="#14294a"/>
+          <rect x="41" y="6" width="9" height="7" rx="2" fill="#f6b93b"/>
+          <rect x="86" y="28" width="9" height="4" fill="#c3ccd5"/>
+          <rect x="12" y="24" width="16" height="14" rx="3" fill="#0b0d10" stroke="#3a444e"/>
+          <rect x="62" y="24" width="16" height="14" rx="3" fill="#0b0d10" stroke="#3a444e"/>
+        </svg>
+      </div>
+      <div class="track-legend">
+        <span class="label">Lap 1 · Nov 2</span>
+        <span class="label gold">Core 1 exam · Lap 21</span>
+        <span class="label">A+ · Lap 30</span>
+      </div>
+    </div>
+
+    <p class="next" id="next"></p>
+    <p class="flag" id="flag" hidden>Rack full. A+ certified. Chequered flag.</p>
+  </div>
+</header>
+
+<section class="pitwall" aria-label="Pit wall">
+  <div class="wrap">
+    <div class="panel">
+      <div>
+        <p class="label">One hour, five parts</p>
+        <h3>Session timer</h3>
+      </div>
+      <div class="lights" id="lights" aria-hidden="true">
+        <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+      </div>
+      <div>
+        <p class="seg-name" id="seg-name">Warm-up</p>
+        <p class="clock" id="clock" aria-live="off">05:00</p>
+      </div>
+      <div class="segbar" id="segbar"></div>
+      <div class="seg-labels label" id="seg-labels"></div>
+      <p id="seg-note"></p>
+      <div class="controls">
+        <button class="primary" id="go" type="button">Lights out</button>
+        <button id="skip" type="button">Skip part</button>
+        <button id="reset-timer" type="button">Reset</button>
+      </div>
+    </div>
+
+    <div class="stack">
+      <div class="panel scoreboard">
+        <div>
+          <p class="label">By phase</p>
+          <h3>Scoreboard</h3>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="score" id="score">
+            <thead><tr><th scope="col"></th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">TOT</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel pitboard">
+        <p class="label">Pit board</p>
+        <p class="board-msg" id="board-msg" aria-live="polite"></p>
+        <div><button id="board-next" type="button">Next message</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="plan" id="plan">
+  <div class="wrap">
+    <div>
+      <div class="plan-head">
+        <p class="label">30 laps · 12 milestones · 42 bricks</p>
+        <h2>Race plan</h2>
+        <p class="lead">Tick a lap when all three sessions that week are done. Missed a session? No double-ups, just keep going. Each tick racks one brick.</p>
+      </div>
+      <div class="phases" id="phases"></div>
+    </div>
+    <aside class="panel rack-panel" aria-label="Rack progress">
+      <div>
+        <p class="label">42U server rack</p>
+        <p class="racked"><span id="racked">0</span><span class="of"> / 42 racked</span></p>
+      </div>
+      <div class="rack">
+        <span class="label">U42</span>
+        <div class="slots" id="slots"></div>
+        <span class="label">U1</span>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<section class="job" aria-labelledby="job-h">
+  <div class="wrap">
+    <div class="plan-head">
+      <p class="label">What a data center technician does</p>
+      <h2 id="job-h">The job in five moves</h2>
+      <p class="lead">Two of these are already done at home. The rest is the same work at a bigger scale, done by the written steps.</p>
+    </div>
+    <ul class="moves">
+      <li class="move"><b>Rack</b><span>Mount servers on the rails of a 42U rack.</span></li>
+      <li class="move home"><b>Stack</b><span>Install drives, memory and cards in a machine.</span><span class="chip">Done at home</span></li>
+      <li class="move"><b>Cable</b><span>Route power and network cables, then label both ends.</span></li>
+      <li class="move home"><b>Swap</b><span>Pull a failed part and fit the new one, like a GPU or RAM upgrade.</span><span class="chip">Done at home</span></li>
+      <li class="move"><b>Log</b><span>Close the ticket with exactly what was done.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="crew" aria-labelledby="crew-h">
+  <div class="wrap">
+    <div class="plan-head">
+      <p class="label">Links</p>
+      <h2 id="crew-h">Pit crew</h2>
+    </div>
+    <div class="groups">
+      <div class="group">
+        <p class="label">Training</p>
+        <a class="link" href="https://www.coursera.org/professional-certificates/google-it-support" target="_blank" rel="noopener"><span class="name">Google IT Support Certificate</span><span class="why">Laps 3–12. Audit free, or ask Coursera for financial aid.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.professormesser.com/" target="_blank" rel="noopener"><span class="name">Professor Messer</span><span class="why">Free A+ Core 1 and Core 2 video courses. Laps 13–30.</span><span class="go">↗</span></a>
+        <a class="link" href="https://perscholas.org/" target="_blank" rel="noopener"><span class="name">Per Scholas Chicago</span><span class="why">Free 15-week, full-time data center course with job matching.</span><span class="go">↗</span></a>
+      </div>
+      <div class="group">
+        <p class="label">Jobs</p>
+        <a class="link" href="https://www.microsoft.com/en-us/diversity/inside-microsoft/cross-disability/neurodiversityhiring" target="_blank" rel="noopener"><span class="name">Microsoft Neurodiversity Hiring</span><span class="why">Data center technician roles with an adapted interview process.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.experis.com/en/job/399059/pathways-data-center-technician" target="_blank" rel="noopener"><span class="name">Experis Pathways</span><span class="why">Paid training, then mentorship in a Chicago data center.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.hireautism.org/" target="_blank" rel="noopener"><span class="name">Hire Autism</span><span class="why">Job board for autism-friendly employers.</span><span class="go">↗</span></a>
+      </div>
+      <div class="group">
+        <p class="label">Support</p>
+        <a class="link" href="https://www.drs.illinois.gov/" target="_blank" rel="noopener"><span class="name">Illinois DRS</span><span class="why">Vocational rehab. Can pay for exams, courses and a job coach.</span><span class="go">↗</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="label">Progress saves in this browser on this device.</p>
+    <div class="confirm">
+      <button id="clear" type="button">Clear progress</button>
+      <span id="clear-confirm" class="confirm" hidden>
+        <span>Clear all 42 ticks?</span>
+        <button id="clear-yes" type="button">Clear</button>
+        <button id="clear-no" type="button">Keep</button>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const PHASES = [
+  { id: 1, name: "Set up", span: "Laps 1–2 · Nov 2 – Nov 15", color: "var(--p1)" },
+  { id: 2, name: "Foundations", span: "Laps 3–12 · Nov 16 – Jan 24", color: "var(--p2)" },
+  { id: 3, name: "A+ Core 1", span: "Laps 13–21 · Jan 25 – Mar 28", color: "var(--p3)" },
+  { id: 4, name: "A+ Core 2", span: "Laps 22–30 · Mar 29 – May 30", color: "var(--p4)" }
+];
+
+const MILESTONES = [
+  { id: "m-drs", phase: 1, lap: 1, title: "Applied to Illinois DRS" },
+  { id: "m-coursera", phase: 1, lap: 1, title: "Coursera account made, Google IT Support enrolled" },
+  { id: "m-photos", phase: 1, lap: 1, title: "Photos taken of the PC builds" },
+  { id: "m-resume", phase: 1, lap: 2, title: "One-page resume listing the 4 PC builds" },
+  { id: "m-alerts", phase: 1, lap: 2, title: "Job alerts set for “Data Center Technician”" },
+  { id: "m-times", phase: 1, lap: 2, title: "3 study times on the calendar" },
+  { id: "m-firstapp", phase: 2, lap: 3, title: "First job application sent" },
+  { id: "m-accom", phase: 3, lap: 15, title: "Testing accommodations requested, if wanted" },
+  { id: "m-core1-85", phase: 3, lap: 20, title: "Core 1 practice test at 85% or better" },
+  { id: "m-core1", phase: 3, lap: 21, title: "Passed A+ Core 1" },
+  { id: "m-core2-85", phase: 4, lap: 29, title: "Core 2 practice test at 85% or better" },
+  { id: "m-core2", phase: 4, lap: 30, title: "Passed A+ Core 2: A+ certified" }
+];
+
+const LAPS = [
+  [1, "Paperwork lap: DRS and Coursera", "Take photos of the PC builds"],
+  [1, "Resume lap: resume and job alerts", "Put the 3 study times on the calendar"],
+  [2, "Google course 1, part 1", "Job hour: send the first application"],
+  [2, "Google course 1, part 2 (skim the hardware)", "Install Linux on a spare PC or USB drive"],
+  [2, "Google course 1, part 3", "Job hour: practice the 2-minute build story"],
+  [2, "Google course 1, part 4: troubleshooting", "Reinstall Windows from scratch"],
+  [2, "Networking 1 of 6: how networks are layered", "Job hour: check alerts and apply"],
+  [2, "Networking 2 of 6: cables, switches, routers", "Run ipconfig, ping and tracert and explain the results"],
+  [2, "Networking 3 of 6: IP addresses", "Job hour: write answers to common interview questions"],
+  [2, "Networking 4 of 6: TCP and ports", "Map every device on the home router"],
+  [2, "Networking 5 of 6: DNS and DHCP", "Job hour: check alerts and apply"],
+  [2, "Networking 6 of 6: troubleshooting tools", "Re-cable a desk neatly with labels and ties"],
+  [3, "Core 1: mobile devices", "Job hour: update the resume with Google courses"],
+  [3, "Core 1: networking", "Swap RAM in a PC, following written steps"],
+  [3, "Core 1: networking, round 2", "Job hour: check alerts and apply"],
+  [3, "Core 1: hardware (home turf)", "Explain a PC build out loud in 2 minutes"],
+  [3, "Core 1: virtualization and cloud", "Job hour: check alerts and apply"],
+  [3, "Core 1: troubleshooting", "Set up a virtual machine in VirtualBox"],
+  [3, "Core 1: practice test 1", "Job hour: check alerts and apply"],
+  [3, "Core 1: practice test 2", "Review every wrong answer"],
+  [3, "Core 1: exam week", "Rest. Light review only"],
+  [4, "Core 2: operating systems", "Job hour: add Core 1 to the resume"],
+  [4, "Core 2: operating systems, round 2", "Make a Windows account with limited rights"],
+  [4, "Core 2: security", "Job hour: check alerts and apply"],
+  [4, "Core 2: security, round 2", "Set up a password manager and 2-step login"],
+  [4, "Core 2: software troubleshooting", "Job hour: check alerts and apply"],
+  [4, "Core 2: operational procedures", "Write a one-page procedure for swapping a drive"],
+  [4, "Core 2: practice test 1", "Job hour: check alerts and apply"],
+  [4, "Core 2: practice test 2", "Review every wrong answer"],
+  [4, "Core 2: exam week", "Rest. Light review only"]
+].map(([phase, title, sat], i) => ({ id: "lap-" + (i + 1), phase, lap: i + 1, title, sat }));
+
+const ITEMS = PHASES.flatMap(p => [
+  ...MILESTONES.filter(m => m.phase === p.id),
+  ...LAPS.filter(l => l.phase === p.id)
+]);
+
+const STINTS = [
+  { name: "Warm-up", min: 5, note: "Open the race plan and read the one task for today." },
+  { name: "Stint 1", min: 20, note: "Phone in another room. Eyes on the task." },
+  { name: "Stretch", min: 5, note: "Stand up, walk around, drink some water." },
+  { name: "Stint 2", min: 20, note: "Back in the car. Same task, full focus." },
+  { name: "Cool-down", min: 10, note: "Make 3 to 5 flashcards, then tick today's box." }
+];
+
+const BOARD = [
+  "Box this lap: one task, one tick.",
+  "Smooth is fast. Follow the steps in order.",
+  "Every build starts with one brick.",
+  "Missed a session? No double-ups. Next lap.",
+  "Nobody bats a thousand. Next at-bat.",
+  "Label the cable before you need to find it.",
+  "Under 85% on practice? Add a lap, not stress.",
+  "4 PCs built already. That's real seat time.",
+  "Good teams adjust the setup. Ask for what helps.",
+  "One more U in the rack today."
+];
+
+const RACE_START = new Date(2026, 10, 2);
+const STORE_KEY = "rack-and-race-v1";
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const phaseOf = id => PHASES.find(p => p.id === id);
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+    return { done: saved.done || {}, driver: saved.driver || "", board: saved.board || 0 };
+  } catch {
+    return { done: {}, driver: "", board: 0 };
+  }
+}
+const state = loadState();
+function saveState() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch { /* storage blocked: progress lasts this visit only */ }
+}
+
+/* Race plan */
+function buildPlan() {
+  $("phases").innerHTML = PHASES.map(p => `
+    <section class="phase" style="--c:${p.color}" aria-labelledby="ph-${p.id}">
+      <div class="phase-head">
+        <span class="phase-no">${p.id}</span>
+        <div><h3 id="ph-${p.id}">${p.name}</h3><p class="label">${p.span}</p></div>
+        <span class="phase-count" id="count-${p.id}"></span>
+      </div>
+      <ul class="items">
+        ${ITEMS.filter(it => it.phase === p.id).map(it => {
+          const ms = it.id.startsWith("m-");
+          return `<li class="item${ms ? " milestone" : ""}" id="row-${it.id}">
+            <label>
+              <input type="checkbox" data-id="${it.id}">
+              <span class="tag">${ms ? "◆" : "L" + pad(it.lap)}</span>
+              <span class="text">
+                <span class="title">${it.title}</span>
+                <span class="sat">${ms ? "Milestone · Lap " + it.lap : "Saturday: " + it.sat}</span>
+              </span>
+            </label>
+          </li>`;
+        }).join("")}
+      </ul>
+    </section>`).join("");
+
+  $("phases").addEventListener("change", e => {
+    const id = e.target.dataset.id;
+    if (e.target.checked) state.done[id] = true; else delete state.done[id];
+    saveState();
+    update();
+  });
+
+  $("slots").innerHTML = ITEMS.map(() => '<span class="slot"></span>').join("");
+}
+
+/* Scoreboard */
+function buildScore() {
+  $("score").tBodies[0].innerHTML = ["Laps", "Goals"].map(row => `
+    <tr><th scope="row">${row.toUpperCase()}</th>
+      ${PHASES.map(p => `<td id="sc-${row}-${p.id}"></td>`).join("")}
+      <td class="tot" id="sc-${row}-tot"></td>
+    </tr>`).join("");
+}
+
+let racked = 0;
+function update() {
+  const done = it => !!state.done[it.id];
+  const lapsDone = LAPS.filter(done).length;
+  const doneItems = ITEMS.filter(done);
+
+  for (const it of ITEMS) {
+    const row = $("row-" + it.id);
+    row.querySelector("input").checked = done(it);
+    row.classList.toggle("done", done(it));
+    row.querySelector(".chip")?.remove();
+  }
+  const current = LAPS.find(l => !done(l));
+  if (current) $("row-" + current.id).querySelector(".text").insertAdjacentHTML("beforeend", '<span class="chip">This lap</span>');
+
+  $("lap-now").textContent = pad(current ? current.lap : 30);
+  $("car").style.setProperty("--p", lapsDone / 30);
+  $("track").setAttribute("aria-label", `Race progress: ${lapsDone} of 30 laps done`);
+
+  const nextMs = MILESTONES.find(m => !done(m));
+  $("next").innerHTML = nextMs
+    ? `<span class="label">Next milestone</span><strong>${nextMs.title}</strong><span class="label">Lap ${nextMs.lap}</span>`
+    : "";
+  $("flag").hidden = doneItems.length < ITEMS.length;
+
+  for (const p of PHASES) {
+    const items = ITEMS.filter(it => it.phase === p.id);
+    $("count-" + p.id).textContent = `${items.filter(done).length} / ${items.length}`;
+    const laps = LAPS.filter(l => l.phase === p.id);
+    const goals = MILESTONES.filter(m => m.phase === p.id);
+    $(`sc-Laps-${p.id}`).innerHTML = `${laps.filter(done).length}<span class="of">of ${laps.length}</span>`;
+    $(`sc-Goals-${p.id}`).innerHTML = `${goals.filter(done).length}<span class="of">of ${goals.length}</span>`;
+  }
+  $("sc-Laps-tot").innerHTML = `${lapsDone}<span class="of">of 30</span>`;
+  $("sc-Goals-tot").innerHTML = `${MILESTONES.filter(done).length}<span class="of">of 12</span>`;
+
+  const slots = $("slots").children;
+  Array.from(slots).forEach((slot, i) => {
+    const it = doneItems[i];
+    slot.classList.toggle("on", !!it);
+    slot.classList.toggle("drop", !!it && i >= racked);
+    slot.style.setProperty("--c", it ? phaseOf(it.phase).color : "");
+  });
+  racked = doneItems.length;
+  $("racked").textContent = racked;
+}
+
+function showCalendar() {
+  const days = Math.floor((new Date().setHours(0, 0, 0, 0) - RACE_START) / 864e5);
+  const lap = Math.floor(days / 7) + 1;
+  $("cal").textContent = days < 0
+    ? `Green flag Mon, Nov 2 · ${-days} day${days === -1 ? "" : "s"} to go`
+    : lap > 30 ? "Calendar: race weeks complete" : `Calendar: week of lap ${lap}`;
+}
+
+/* Driver */
+function setupDriver() {
+  const input = $("driver");
+  input.value = state.driver;
+  input.addEventListener("input", () => { state.driver = input.value.trim(); saveState(); });
+}
+
+/* Pit board */
+function showBoard() { $("board-msg").textContent = BOARD[state.board % BOARD.length]; }
+$("board-next").addEventListener("click", () => { state.board = (state.board + 1) % BOARD.length; saveState(); showBoard(); });
+
+/* Session timer */
+const timer = { seg: 0, left: STINTS[0].min * 60000, endAt: 0, tick: 0, audio: null, lock: null, busy: false };
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+function buildTimer() {
+  $("segbar").innerHTML = STINTS.map(s => `<span class="seg" style="flex:${s.min}"><span></span></span>`).join("");
+  $("seg-labels").innerHTML = STINTS.map(s => `<span style="flex:${s.min}">${s.name}</span>`).join("");
+}
+
+function drawTimer() {
+  const s = STINTS[timer.seg];
+  const secs = Math.max(0, Math.ceil(timer.left / 1000));
+  $("seg-name").textContent = s.name;
+  $("clock").textContent = `${pad(Math.floor(secs / 60))}:${pad(secs % 60)}`;
+  $("seg-note").textContent = s.note;
+  Array.from($("segbar").children).forEach((el, i) => {
+    el.classList.toggle("past", i < timer.seg);
+    el.firstElementChild.style.width = i === timer.seg ? `${100 - (timer.left / (s.min * 600))}%` : "";
+  });
+  $("go").textContent = timer.tick ? "Pause" : timer.left < s.min * 60000 || timer.seg > 0 ? "Resume" : "Lights out";
+}
+
+function beep() {
+  if (!timer.audio) return;
+  const ctx = timer.audio;
+  [0, 0.3].forEach(t => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = 880;
+    gain.gain.setValueAtTime(0.2, ctx.currentTime + t);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.25);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(ctx.currentTime + t);
+    osc.stop(ctx.currentTime + t + 0.25);
+  });
+}
+
+function lightsOut() {
+  const lights = Array.from($("lights").children);
+  if (reducedMotion.matches) return Promise.resolve();
+  return new Promise(resolve => {
+    lights.forEach((l, i) => setTimeout(() => l.classList.add("on"), 450 * (i + 1)));
+    setTimeout(() => { lights.forEach(l => l.classList.remove("on")); resolve(); }, 450 * 5 + 800);
+  });
+}
+
+async function holdScreen() {
+  try { timer.lock = await navigator.wakeLock.request("screen"); } catch { timer.lock = null; }
+}
+function releaseScreen() {
+  timer.lock?.release();
+  timer.lock = null;
+}
+
+function step() {
+  timer.left = timer.endAt - Date.now();
+  if (timer.left <= 0) {
+    beep();
+    if (timer.seg === STINTS.length - 1) {
+      stopTimer();
+      resetTimer();
+      $("seg-note").textContent = "Session done. Tick today's box in the race plan.";
+      return;
+    }
+    nextSegment();
+  }
+  drawTimer();
+}
+
+function nextSegment() {
+  timer.seg = (timer.seg + 1) % STINTS.length;
+  timer.left = STINTS[timer.seg].min * 60000;
+  timer.endAt = Date.now() + timer.left;
+}
+
+function runTimer() {
+  timer.endAt = Date.now() + timer.left;
+  timer.tick = setInterval(step, 250);
+  holdScreen();
+  drawTimer();
+}
+
+function stopTimer() {
+  clearInterval(timer.tick);
+  timer.tick = 0;
+  releaseScreen();
+}
+
+$("go").addEventListener("click", async () => {
+  if (timer.busy) return;
+  if (timer.tick) {
+    timer.left = timer.endAt - Date.now();
+    stopTimer();
+    drawTimer();
+    return;
+  }
+  try { timer.audio ||= new AudioContext(); } catch { timer.audio = null; }
+  const fresh = timer.seg === 0 && timer.left === STINTS[0].min * 60000;
+  if (fresh) {
+    timer.busy = true;
+    $("go").disabled = true;
+    await lightsOut();
+    $("go").disabled = false;
+    timer.busy = false;
+  }
+  runTimer();
+});
+
+function resetTimer() {
+  timer.seg = 0;
+  timer.left = STINTS[0].min * 60000;
+  drawTimer();
+}
+
+$("skip").addEventListener("click", () => {
+  if (timer.busy) return;
+  nextSegment();
+  drawTimer();
+});
+
+$("reset-timer").addEventListener("click", () => {
+  if (timer.busy) return;
+  stopTimer();
+  resetTimer();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && timer.tick) holdScreen();
+});
+
+/* Clear progress */
+$("clear").addEventListener("click", () => { $("clear-confirm").hidden = false; $("clear").hidden = true; });
+$("clear-no").addEventListener("click", () => { $("clear-confirm").hidden = true; $("clear").hidden = false; });
+$("clear-yes").addEventListener("click", () => {
+  state.done = {};
+  saveState();
+  racked = 0;
+  update();
+  $("clear-confirm").hidden = true;
+  $("clear").hidden = false;
+});
+
+buildPlan();
+buildScore();
+buildTimer();
+setupDriver();
+showBoard();
+showCalendar();
+racked = ITEMS.filter(it => state.done[it.id]).length;
+update();
+drawTimer();
+</script>
+</body>
+</html>
