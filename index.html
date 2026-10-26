@@ -26,6 +26,12 @@
   --gold: #FFC52F;
   --led-green: #3ddc84;
   --led-blue: #3d8bff;
+  --mesh-dot: rgba(0, 161, 155, .3);
+  --mesh-line: rgba(0, 161, 155, .12);
+  --scanline: rgba(0, 0, 0, .32);
+  --vignette: rgba(13, 13, 17, .92);
+  --hud-silver: rgba(200, 200, 200, .75);
+  --hud-teal: rgba(0, 161, 155, .4);
   --p1: var(--silver);
   --p2: var(--teal);
   --p3: var(--gold);
@@ -64,13 +70,56 @@ button.primary { background: var(--teal); border-color: var(--teal); color: #031
 button:disabled { opacity: .5; cursor: default; }
 
 /* Hero */
-.hero { position: relative; isolation: isolate; overflow: hidden; min-height: clamp(560px, 86svh, 1000px); display: grid; align-items: end; }
-.hero-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.hero::before {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background:
+/* Layers, back to front: video, telemetry mesh (screen blend), scanlines + vignette + text fade, HUD brackets, content. */
+.hero {
+  --scan: 3px;
+  --dot: 6px;
+  --grid: 48px;
+  --tick: 12px;
+  --hud-in: clamp(12px, 1.6vw, 48px);
+  --hud-len: clamp(18px, 2vw, 72px);
+  --hud-w: 2px;
+  --ruler: min(40%, 960px);
+  --fade:
     linear-gradient(180deg, rgba(18,18,18,.55) 0%, rgba(18,18,18,0) 30%, rgba(18,18,18,.35) 62%, var(--bg) 100%),
     linear-gradient(90deg, rgba(18,18,18,.94) 0%, rgba(18,18,18,.72) 42%, rgba(18,18,18,.15) 100%);
+  position: relative; isolation: isolate; overflow: hidden; min-height: clamp(560px, 86svh, 1000px); display: grid; align-items: end;
+}
+/* On scaled displays (125–175%), keep every pattern repeat a whole number of device pixels so the lines don't beat into moiré. */
+@media (min-resolution: 1.1dppx) and (max-resolution: 1.9dppx) {
+  .hero { --scan: 4px; --dot: 8px; }
+}
+.hero-video { position: absolute; inset: 0; z-index: -3; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.hero-mesh {
+  position: absolute; inset: 0; z-index: -2; pointer-events: none; mix-blend-mode: screen;
+  background:
+    radial-gradient(circle, var(--mesh-dot) 1px, transparent 1.5px) 0 0 / var(--dot) var(--dot),
+    repeating-linear-gradient(90deg, var(--mesh-line) 0 1px, transparent 1px var(--grid)),
+    repeating-linear-gradient(180deg, var(--mesh-line) 0 1px, transparent 1px var(--grid));
+}
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, var(--scanline) 0 1px, transparent 1px var(--scan)),
+    radial-gradient(ellipse farthest-corner at 58% 45%, transparent 42%, var(--vignette) 100%),
+    var(--fade);
+}
+.hero::after {
+  --bracket: linear-gradient(var(--hud-silver) 0 0);
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  inset: var(--hud-in) max(var(--hud-in), env(safe-area-inset-right, 0px)) var(--hud-in) max(var(--hud-in), env(safe-area-inset-left, 0px));
+  background:
+    var(--bracket) left top / var(--hud-len) var(--hud-w),
+    var(--bracket) left top / var(--hud-w) var(--hud-len),
+    var(--bracket) right top / var(--hud-len) var(--hud-w),
+    var(--bracket) right top / var(--hud-w) var(--hud-len),
+    var(--bracket) left bottom / var(--hud-len) var(--hud-w),
+    var(--bracket) left bottom / var(--hud-w) var(--hud-len),
+    var(--bracket) right bottom / var(--hud-len) var(--hud-w),
+    var(--bracket) right bottom / var(--hud-w) var(--hud-len),
+    repeating-linear-gradient(90deg, var(--hud-teal) 0 1px, transparent 1px var(--tick)) 50% 0 / var(--ruler) 6px,
+    repeating-linear-gradient(90deg, var(--hud-teal) 0 1px, transparent 1px calc(var(--tick) * 5)) 50% 0 / var(--ruler) 12px;
+  background-repeat: no-repeat;
 }
 .hero .wrap { width: 100%; padding-block: 120px 48px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
 .hero-copy { display: grid; gap: 16px; max-width: 640px; }
@@ -93,7 +142,7 @@ h1 .amp { color: var(--teal); text-shadow: 0 0 22px var(--teal-glow), 0 0 4px va
 .cal { color: var(--silver); font-size: .85rem; }
 .next { max-width: 30ch; font-size: .85rem; }
 .next strong { color: var(--white); font-weight: 500; }
-.video-toggle { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 16px; font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
+.video-toggle { position: absolute; top: calc(var(--hud-in) + 12px); right: calc(max(var(--hud-in), env(safe-area-inset-right, 0px)) + 12px); font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
 
 /* Circuit */
 .circuit-sec .wrap { padding-block: 40px 56px; }
@@ -282,7 +331,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
   .groups { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
-  .hero::before { background: linear-gradient(180deg, rgba(18,18,18,.5) 0%, rgba(18,18,18,.7) 45%, var(--bg) 100%); }
+  .hero { --fade: linear-gradient(180deg, rgba(18,18,18,.5) 0%, rgba(18,18,18,.7) 45%, var(--bg) 100%); }
   .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 96px 32px; }
   .readout { justify-items: start; text-align: left; }
   .blade { padding-right: 16px; }
@@ -304,6 +353,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
   <video class="hero-video" id="hero-video" autoplay muted loop playsinline preload="metadata" poster="media/hero.jpg" aria-hidden="true">
     <source src="media/hero.mp4" type="video/mp4">
   </video>
+  <div class="hero-mesh" aria-hidden="true"></div>
   <button class="video-toggle" id="video-toggle" type="button">Pause video</button>
   <div class="wrap">
     <div class="hero-copy">
