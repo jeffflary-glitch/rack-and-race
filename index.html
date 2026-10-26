@@ -331,7 +331,7 @@ label.row:hover { background: rgba(255,255,255,.025); }
 .link .why { grid-column: 2; color: var(--muted); font-size: .82rem; }
 .link .go { grid-row: 1 / span 2; grid-column: 3; color: var(--teal); font: 700 1.2rem var(--mono); }
 
-footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
+footer .wrap { padding-block: 24px 72px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
 .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
 @media (max-width: 960px) {
@@ -354,6 +354,23 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
   .brick { width: 24px; height: 12px; }
   .brick::before { left: 3px; width: 7px; box-shadow: 11px 0 0 var(--bc); }
 }
+/* Cloud sync light */
+[inert] { opacity: .55; }
+.sync {
+  position: fixed; z-index: 20;
+  right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  display: flex; align-items: center; gap: 8px;
+  font: 500 .66rem var(--mono); letter-spacing: .12em;
+  padding: 7px 12px 7px 10px; border-radius: 999px;
+  background: rgba(18,18,18,.86); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  color: var(--silver);
+}
+.sync:disabled { opacity: 1; cursor: default; }
+.sync:disabled:hover { border-color: var(--line); }
+.sync:enabled { border-color: var(--gold); color: var(--gold); }
+.led.on { color: var(--teal); box-shadow: 0 0 8px currentColor; }
+.led.err { color: var(--gold); box-shadow: 0 0 8px currentColor; }
+
 @media (prefers-reduced-motion: reduce) {
   .led.ok, .led.busy, .led.act, .slot.drop, .brick.snap, .item.flash .row { animation: none; }
   .brick, .move { transition: none; }
@@ -368,7 +385,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
   </video>
   <div class="hero-mesh" aria-hidden="true"></div>
   <div class="hero-tools">
-    <button id="sound-toggle" type="button">Mute sounds</button>
+    <button id="sound-toggle" type="button" inert>Mute sounds</button>
     <button id="video-toggle" type="button">Pause video</button>
   </div>
   <audio id="sfx-start" src="media/timer-start.mp3" preload="auto"></audio>
@@ -381,7 +398,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
       <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every finished lap racks a brick.</p>
       <div class="driver">
         <label class="label" for="driver">Driver</label>
-        <input id="driver" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
+        <input id="driver" inert type="text" maxlength="24" placeholder="Your name" autocomplete="off">
       </div>
     </div>
     <div class="readout">
@@ -449,7 +466,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
           <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led act"></span></span>
           <p class="label" id="board-h">Pit board</p>
           <p class="board-msg" id="board-msg" aria-live="polite"></p>
-          <div><button id="board-next" type="button">Next message</button></div>
+          <div><button id="board-next" type="button" inert>Next message</button></div>
         </article>
       </div>
       <div class="rack-col">
@@ -486,7 +503,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
         <h2>Race plan</h2>
         <p class="lead">Tick one box for each 1-hour session. The third session finishes the lap and racks its brick. Missed a session? No double-ups, just keep going.</p>
       </div>
-      <div class="phases" id="phases"></div>
+      <div class="phases" id="phases" inert></div>
     </div>
     <aside class="rack-panel" aria-label="Rack progress">
       <div>
@@ -548,9 +565,9 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
 
 <footer>
   <div class="wrap">
-    <p class="label">Progress saves in this browser on this device.</p>
+    <p class="label">Progress syncs to the cloud, so every device shows the same race.</p>
     <div class="confirm">
-      <button id="clear" type="button">Clear progress</button>
+      <button id="clear" type="button" inert>Clear progress</button>
       <span id="clear-confirm" class="confirm" hidden>
         <span>Clear all progress?</span>
         <button id="clear-yes" type="button">Clear</button>
@@ -559,6 +576,8 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
     </div>
   </div>
 </footer>
+
+<button class="sync" id="sync" type="button" disabled><span class="led busy" id="sync-led" aria-hidden="true"></span><span id="sync-text" role="status">Syncing…</span></button>
 
 <script>
 const PHASES = [
@@ -662,7 +681,8 @@ const BOARD = [
 ];
 
 const RACE_START = new Date(2026, 10, 2);
-const STORE_KEY = "rack-and-race-v1";
+const SYNC_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+const SYNC_USER = "Son-Device-Sync";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
@@ -670,29 +690,78 @@ const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 const SESSIONS = ["Session 1: watch and learn", "Session 2: practice", "Session 3: Saturday hands-on"];
 
-function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORE_KEY)) || {};
-    const done = saved.done || {};
-    const sessions = saved.sessions || {};
-    /* Laps ticked before session ticks existed count as all three sessions done. */
-    for (const id of Object.keys(done).filter(isLap)) {
-      sessions[id] = [true, true, true];
-      delete done[id];
-    }
-    return { done, sessions, driver: saved.driver || "", board: saved.board || 0, sound: saved.sound !== false };
-  } catch {
-    return { done: {}, sessions: {}, driver: "", board: 0, sound: true };
-  }
-}
-function isLap(id) { return id.startsWith("lap-"); }
-const state = loadState();
-function saveState() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch { /* storage blocked: progress lasts this visit only */ }
-}
+const state = { done: {}, sessions: {}, driver: "", board: 0, sound: true };
+const isLap = id => id.startsWith("lap-");
 const sessionsOf = id => state.sessions[id] || [false, false, false];
 const isDone = id => isLap(id) ? sessionsOf(id).every(Boolean) : !!state.done[id];
 const lapsDone = () => LAPS.filter(l => isDone(l.id)).length;
+
+/* Cloud sync: progress lives in a Google Sheet, so every device shows the same race. */
+const sync = { timer: 0, sending: false, again: false, retry: null };
+const stamp = when => new Date(when).toLocaleString([], { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+function showSync(mode, text, retry = null) {
+  $("sync-led").className = "led " + mode;
+  $("sync-text").textContent = text;
+  $("sync").disabled = !retry;
+  sync.retry = retry;
+}
+
+async function loadProgress() {
+  showSync("busy", "Syncing…");
+  try {
+    const res = await fetch(`${SYNC_URL}?user=${encodeURIComponent(SYNC_USER)}`, { cache: "no-store" });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (data.found) Object.assign(state, data.progress);
+    $("driver").value = state.driver;
+    showSound();
+    showBoard();
+    update();
+    document.querySelectorAll("[inert]").forEach(el => { el.inert = false; });
+    showSync("on", data.found ? "Synced · " + stamp(data.lastSynced) : "Synced");
+  } catch {
+    showSync("err", "Offline · Tap to retry", loadProgress);
+  }
+}
+
+function saveState() {
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(pushProgress, 600);
+  showSync("busy", "Syncing…");
+}
+
+async function pushProgress() {
+  sync.timer = 0;
+  if (sync.sending) { sync.again = true; return; }
+  sync.sending = true;
+  try {
+    const res = await fetch(SYNC_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, /* plain text skips the CORS preflight, which Apps Script can't answer */
+      body: JSON.stringify({
+        user: SYNC_USER,
+        laps: lapsDone(),
+        bricks: ITEMS.filter(it => isDone(it.id)).length,
+        milestones: MILESTONES.filter(m => isDone(m.id)).map(m => m.title),
+        progress: state
+      }),
+      keepalive: true
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    if (!sync.again && !sync.timer) showSync("on", "Saved · " + stamp(data.lastSynced));
+  } catch {
+    showSync("err", "Not saved · Tap to retry", pushProgress);
+  }
+  sync.sending = false;
+  if (sync.again) { sync.again = false; pushProgress(); }
+}
+
+$("sync").addEventListener("click", () => sync.retry());
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && sync.timer) { clearTimeout(sync.timer); pushProgress(); }
+});
 
 /* Sound cues */
 function playSfx(name) {
@@ -702,16 +771,8 @@ function playSfx(name) {
   el.play().catch(() => { /* blocked until the visitor interacts with the page */ });
 }
 
-function setupSound() {
-  const toggle = $("sound-toggle");
-  const show = () => { toggle.textContent = state.sound ? "Mute sounds" : "Unmute sounds"; };
-  show();
-  toggle.addEventListener("click", () => {
-    state.sound = !state.sound;
-    saveState();
-    show();
-  });
-}
+function showSound() { $("sound-toggle").textContent = state.sound ? "Mute sounds" : "Unmute sounds"; }
+$("sound-toggle").addEventListener("click", () => { state.sound = !state.sound; saveState(); showSound(); });
 
 /* Hero video */
 function setupVideo() {
@@ -1012,11 +1073,7 @@ function showCalendar() {
     : lap > 30 ? "Calendar: race weeks complete" : `Calendar: week of lap ${lap}`;
 }
 
-function setupDriver() {
-  const input = $("driver");
-  input.value = state.driver;
-  input.addEventListener("input", () => { state.driver = input.value.trim(); saveState(); });
-}
+$("driver").addEventListener("input", e => { state.driver = e.target.value.trim(); saveState(); });
 
 function showBoard() { $("board-msg").textContent = BOARD[state.board % BOARD.length]; }
 $("board-next").addEventListener("click", () => { state.board = (state.board + 1) % BOARD.length; saveState(); showBoard(); });
@@ -1165,17 +1222,16 @@ $("clear-yes").addEventListener("click", () => {
 });
 
 setupVideo();
-setupSound();
+showSound();
 buildPlan();
 buildScore();
 buildTimer();
-setupDriver();
 showBoard();
 showCalendar();
-racked = ITEMS.filter(it => isDone(it.id)).length;
 buildCircuit();
 update();
 drawTimer();
+loadProgress();
 
 let lastWidth = $("circuit").clientWidth;
 new ResizeObserver(() => {
