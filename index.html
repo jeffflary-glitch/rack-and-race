@@ -4,340 +4,406 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Rack &amp; Race</title>
-<meta name="description" content="A 30-lap plan from PC builder to data center technician: three 1-hour sessions a week, a brick-built rack that fills as you go.">
+<meta name="description" content="A 30-lap plan from PC builder to data center technician: three 1-hour sessions a week, a race circuit through a server rack, and milestones built brick by brick.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@500;700&family=Saira:ital,wdth,wght@0,75..100,500..900;1,75..100,500..900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap">
 <style>
-/* Layout: a pit wall. Hero with the race track, three instrument panels, then the race plan beside a 42U rack that fills brick by brick. */
+/* Layout: video hero, then a race circuit snaking through a server rack, a command center of rack-mounted blades, and the race plan beside a 42U rack that fills brick by brick. */
 :root {
-  --carbon: #0f1317;
-  --panel: #161c22;
-  --line: #2a343e;
-  --silver: #d3dae1;
-  --bright: #eef2f5;
-  --muted: #8d99a5;
-  --teal: #1cc5b3;
-  --gold: #f6b93b;
-  --navy: #14294a;
-  --navy-deep: #0c1c34;
-  --red: #e0533a;
-  --p1: #c3ccd5;
+  --bg: #121212;
+  --bg-2: #1E1E1E;
+  --void: #0b0b0b;
+  --line: #2f2f2f;
+  --metal: #2b2b2b;
+  --silver: #C8C8C8;
+  --white: #f1f1f1;
+  --muted: #8c8c8c;
+  --teal: #00A19B;
+  --teal-glow: rgba(0, 161, 155, .6);
+  --navy: #0A2351;
+  --navy-edge: #2a4f8f;
+  --gold: #FFC52F;
+  --led-green: #3ddc84;
+  --led-blue: #3d8bff;
+  --p1: var(--silver);
   --p2: var(--teal);
   --p3: var(--gold);
-  --p4: var(--red);
-  --display: "Saira", "Arial Narrow", sans-serif;
-  --body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --p4: var(--navy);
+  --display: "Oswald", "Arial Narrow", Impact, sans-serif;
+  --mono: "Roboto Mono", ui-monospace, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--carbon); color: var(--silver); font: 400 16px/1.55 var(--body); }
+body { margin: 0; background: var(--bg); color: var(--silver); font: 400 15px/1.6 var(--mono); }
 .wrap {
-  max-width: 1180px;
+  max-width: 1240px;
   margin-inline: auto;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 a { color: var(--teal); }
 :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-h1, h2, h3 { font-family: var(--display); font-stretch: 75%; text-wrap: balance; margin: 0; line-height: 1.05; color: var(--bright); }
-h2 { font-size: clamp(2rem, 5vw, 2.8rem); font-weight: 800; font-style: italic; text-transform: uppercase; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; color: var(--gold); text-wrap: balance; margin: 0; line-height: 1.02; letter-spacing: .01em; }
+h2 { font-size: clamp(2.2rem, 5vw, 3.2rem); }
+h3 { font-size: 1.5rem; font-weight: 600; }
 p { margin: 0; }
-.label { font-family: var(--mono); font-size: .72rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.lead { max-width: 60ch; color: var(--silver); }
+.label { font: 500 .72rem var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.label.teal { color: var(--teal); }
+.lead { max-width: 62ch; }
+.section-head { display: grid; gap: 10px; margin-bottom: 24px; }
 button {
-  font: 700 .95rem var(--display); font-stretch: 90%; letter-spacing: .06em; text-transform: uppercase;
-  border: 1px solid var(--line); background: var(--panel); color: var(--bright);
-  padding: 10px 16px; border-radius: 4px; cursor: pointer;
+  font: 600 .95rem var(--display); letter-spacing: .08em; text-transform: uppercase;
+  border: 1px solid var(--line); background: var(--bg-2); color: var(--white);
+  padding: 10px 16px; border-radius: 3px; cursor: pointer;
 }
-button:hover { border-color: var(--muted); }
-button.primary { background: var(--teal); border-color: var(--teal); color: #06231f; }
-button.primary:hover { filter: brightness(1.08); }
+button:hover { border-color: var(--teal); }
+button.primary { background: var(--teal); border-color: var(--teal); color: #031a19; box-shadow: 0 0 16px var(--teal-glow); }
 button:disabled { opacity: .5; cursor: default; }
 
 /* Hero */
-.hero {
+.hero { position: relative; isolation: isolate; overflow: hidden; min-height: clamp(560px, 86svh, 1000px); display: grid; align-items: end; }
+.hero-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
   background:
-    repeating-linear-gradient(45deg, rgba(255,255,255,.025) 0 2px, transparent 2px 6px),
-    repeating-linear-gradient(-45deg, rgba(0,0,0,.28) 0 2px, transparent 2px 6px),
-    linear-gradient(180deg, #151b21, var(--carbon));
-  border-bottom: 1px solid var(--line);
+    linear-gradient(180deg, rgba(18,18,18,.55) 0%, rgba(18,18,18,0) 30%, rgba(18,18,18,.35) 62%, var(--bg) 100%),
+    linear-gradient(90deg, rgba(18,18,18,.94) 0%, rgba(18,18,18,.72) 42%, rgba(18,18,18,.15) 100%);
 }
-.hero .wrap { padding-block: 40px 28px; display: grid; gap: 24px; }
-.hero-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
-h1 { font-size: clamp(3.4rem, 12vw, 7.5rem); font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: -.01em; }
-h1 .amp { color: var(--teal); }
-.hero .lead { font-size: 1.1rem; margin-top: 12px; }
-.driver { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; }
+.hero .wrap { width: 100%; padding-block: 120px 48px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
+.hero-copy { display: grid; gap: 16px; max-width: 640px; }
+h1 { font-size: clamp(3.6rem, 12vw, 8.5rem); line-height: .9; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+h1 .amp { color: var(--teal); text-shadow: 0 0 22px var(--teal-glow), 0 0 4px var(--teal-glow); }
+.hero .lead { color: var(--silver); font-size: 1rem; text-shadow: 0 1px 8px rgba(0,0,0,.8); }
+.driver { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 #driver {
-  background: var(--panel); border: 1px solid var(--line); border-radius: 4px; color: var(--bright);
-  font: 800 1.05rem var(--display); font-stretch: 90%; letter-spacing: .06em; text-transform: uppercase;
-  padding: 8px 12px; width: min(260px, 100%);
+  background: rgba(10,35,81,.7); border: 1px solid var(--navy-edge); border-radius: 3px; color: var(--gold);
+  font: 600 1.15rem var(--display); letter-spacing: .1em; text-transform: uppercase; padding: 8px 12px; width: min(260px, 100%);
 }
-#driver::placeholder { color: var(--muted); }
-.readout { text-align: right; }
-.lap { font-family: var(--mono); font-weight: 700; font-size: clamp(2.6rem, 8vw, 4.6rem); color: var(--gold); line-height: 1; font-variant-numeric: tabular-nums; }
-.lap .of { color: var(--muted); font-size: .45em; }
-.cal { color: var(--muted); font-size: .9rem; margin-top: 6px; }
+#driver::placeholder { color: #8ea3c9; }
+.readout {
+  display: grid; gap: 8px; justify-items: end; text-align: right;
+  background: rgba(18,18,18,.72); border: 1px solid var(--line); border-top: 3px solid var(--teal);
+  padding: 16px 20px; border-radius: 3px; backdrop-filter: blur(6px);
+}
+.lap { font: 700 clamp(3rem, 8vw, 5rem)/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+.lap .of { color: var(--silver); font-size: .45em; }
+.cal { color: var(--silver); font-size: .85rem; }
+.next { max-width: 30ch; font-size: .85rem; }
+.next strong { color: var(--white); font-weight: 500; }
+.video-toggle { position: absolute; right: max(16px, env(safe-area-inset-right, 0px)); top: 16px; font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
 
-.track {
-  position: relative; height: 72px; border-radius: 6px; overflow: hidden;
-  background: #20262c; border-block: 3px solid #39434d;
+/* Circuit */
+.circuit-sec .wrap { padding-block: 40px 56px; }
+.circuit-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
+.circuit { position: relative; background: var(--void); border: 1px solid var(--line); border-radius: 4px; }
+.circuit svg { display: block; width: 100%; height: auto; }
+.circuit .glow { filter: drop-shadow(0 0 5px var(--teal)) drop-shadow(0 0 12px var(--teal-glow)); }
+.lapno { font: 500 10px var(--mono); fill: var(--muted); }
+.lapno.now { fill: var(--teal); font-weight: 700; }
+.towers { position: absolute; inset: 0; pointer-events: none; }
+.tower { position: absolute; display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; transform: translate(-50%, -100%); pointer-events: auto; }
+.brick {
+  --bc: var(--navy);
+  position: relative; width: 30px; height: 14px; padding: 0; border: 0; border-radius: 2px; background: var(--bc);
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2), 0 0 0 1px var(--navy-edge), 0 2px 0 rgba(0,0,0,.6);
+  transition: transform .15s ease, box-shadow .15s ease;
 }
-.track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed rgba(255,255,255,.16); }
-.ticks {
-  position: absolute; left: 0; right: 22px; top: 0; height: 10px;
-  background: linear-gradient(90deg, rgba(255,255,255,.22) 0 1px, transparent 1px) 0 0 / calc(100% / 30) 100% repeat-x;
+.brick::before {
+  content: ""; position: absolute; top: -4px; left: 5px; width: 8px; height: 4px; border-radius: 2px 2px 0 0;
+  background: var(--bc); box-shadow: 12px 0 0 var(--bc);
 }
-.start { position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: var(--bright); }
-.finish {
-  position: absolute; right: 0; top: 0; bottom: 0; width: 22px;
-  background: conic-gradient(var(--bright) 25%, #111 0 50%, var(--bright) 0 75%, #111 0) 0 0 / 11px 11px;
+.brick.done { --bc: var(--gold); box-shadow: inset 0 -3px 0 rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.45), 0 0 0 1px #b8891a, 0 2px 0 rgba(0,0,0,.6), 0 0 12px rgba(255,197,47,.35); }
+.brick:hover, .brick:focus-visible { transform: translateY(-4px); z-index: 2; }
+.brick:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 rgba(0,0,0,.35), 0 0 0 1px var(--navy-edge); }
+.brick.snap { animation: snap .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes snap { 0% { transform: translateY(-14px) scale(1.15); } 100% { transform: none; } }
+.tip {
+  position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); z-index: 3;
+  width: max-content; max-width: 220px; padding: 6px 8px; border-radius: 3px; text-align: left;
+  background: var(--navy); border: 1px solid var(--gold); color: var(--white); font: 500 .72rem/1.35 var(--mono);
+  opacity: 0; pointer-events: none; transition: opacity .15s;
 }
-.marker { position: absolute; top: 0; bottom: 0; width: 3px; left: calc((100% - 22px) * 20 / 30); background: var(--gold); }
-.car {
-  position: absolute; top: 50%; width: 96px; height: 40px;
-  left: calc((100% - 22px - 96px) * var(--p, 0));
-  transform: translateY(-50%);
-  transition: left .9s cubic-bezier(.2, .8, .2, 1);
-}
-.track-legend { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; }
-.track-legend .gold { color: var(--gold); }
-.next { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
-.next strong { color: var(--bright); }
-.flag {
-  font: 900 italic 1.4rem var(--display); font-stretch: 75%; text-transform: uppercase; letter-spacing: .04em;
-  color: #111; background: var(--gold); padding: 10px 16px; border-radius: 4px;
-}
+.brick:hover .tip, .brick:focus-visible .tip { opacity: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; align-items: center; }
+.key { display: inline-flex; align-items: center; gap: 8px; }
+.swatch { width: 18px; height: 10px; border-radius: 2px; }
 
-/* Pit wall */
-.pitwall .wrap { padding-block: 32px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; }
-.stack { display: grid; gap: 20px; align-content: start; }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 20px; display: grid; gap: 14px; align-content: start; }
-.panel h3 { font-size: 1.6rem; font-weight: 800; font-style: italic; text-transform: uppercase; }
+/* Blades */
+.command .wrap { padding-block: 8px 56px; }
+.racks { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.rack-col { position: relative; display: grid; gap: 10px; padding: 14px 28px; background: var(--void); border: 1px solid var(--line); border-radius: 4px; }
+.rack-col::before, .rack-col::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 16px;
+  background: repeating-linear-gradient(180deg, var(--metal) 0 12px, var(--void) 12px 16px, var(--metal) 16px 22px);
+}
+.rack-col::before { left: 4px; }
+.rack-col::after { right: 4px; }
+.blade {
+  position: relative; display: grid; gap: 12px; align-content: start;
+  padding: 16px 90px 16px 56px; border: 1px solid #353535; border-radius: 3px;
+  background: linear-gradient(180deg, #252525, var(--bg-2));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 0 #000;
+}
+.blade::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 16px; border-right: 1px solid #3a3a3a;
+  background: radial-gradient(circle at 8px 14px, #5c5c5c 2.5px, transparent 3px), radial-gradient(circle at 8px calc(100% - 14px), #5c5c5c 2.5px, transparent 3px), var(--metal);
+}
+.blade::after {
+  content: ""; position: absolute; right: 16px; top: 16px; bottom: 16px; width: 56px; border-radius: 2px;
+  background: repeating-linear-gradient(90deg, #0d0d0d 0 3px, transparent 3px 7px);
+}
+.blade-leds { position: absolute; left: 28px; top: 20px; display: grid; gap: 8px; }
+.led { display: block; width: 8px; height: 8px; border-radius: 50%; color: #3a3a3a; background: currentColor; }
+.led.ok { color: var(--led-green); box-shadow: 0 0 8px currentColor; animation: pulse 2.8s ease-in-out infinite; }
+.led.busy { color: var(--teal); box-shadow: 0 0 8px currentColor; animation: pulse 1.4s ease-in-out infinite; }
+.led.act { color: var(--led-blue); box-shadow: 0 0 8px currentColor; animation: blink 3.7s steps(1) infinite; }
+@keyframes pulse { 50% { opacity: .45; box-shadow: 0 0 2px currentColor; } }
+@keyframes blink { 0%, 62%, 70%, 78% { opacity: 1; } 66%, 74% { opacity: .2; } }
+.blade h3 { font-size: 1.35rem; }
+.status-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.status-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.status-list .name { color: var(--white); }
+.status-list .state { font-size: .78rem; color: var(--muted); text-align: right; }
+.status-list .state.on { color: var(--led-green); }
+.status-list .state.mid { color: var(--teal); }
 
 .lights { display: flex; gap: 10px; }
-.light { width: 28px; height: 28px; border-radius: 50%; background: #2a1414; border: 2px solid #3d2222; }
-.light.on { background: #ff3b30; border-color: #ff6a60; box-shadow: 0 0 14px #ff3b30; }
-.clock { font: 700 clamp(3.2rem, 10vw, 5rem)/1 var(--mono); color: var(--bright); font-variant-numeric: tabular-nums; }
-.seg-name { font: 800 italic 1.4rem var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--teal); }
+.light { width: 24px; height: 24px; border-radius: 50%; background: #2a2412; border: 2px solid #3d3519; }
+.light.on { background: var(--gold); border-color: #ffe08a; box-shadow: 0 0 14px var(--gold); }
+.clock { font: 700 clamp(3rem, 9vw, 4.6rem)/1 var(--display); color: var(--white); font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.seg-name { font: 600 1.2rem var(--display); text-transform: uppercase; letter-spacing: .06em; color: var(--teal); text-shadow: 0 0 10px var(--teal-glow); }
 .segbar { display: flex; gap: 4px; }
-.seg { height: 10px; background: #252d35; border-radius: 2px; overflow: hidden; }
-.seg span { display: block; height: 100%; width: 0; background: var(--teal); }
-.seg.past span { width: 100%; background: var(--muted); }
+.seg { height: 8px; background: #2c2c2c; border-radius: 2px; overflow: hidden; }
+.seg span { display: block; height: 100%; width: 0; background: var(--teal); box-shadow: 0 0 8px var(--teal); }
+.seg.past span { width: 100%; background: var(--silver); box-shadow: none; }
 .seg-labels { display: flex; gap: 4px; }
 .seg-labels span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .controls { display: flex; flex-wrap: wrap; gap: 10px; }
 
-.scoreboard { background: var(--navy); border-color: #27497a; }
-.scoreboard h3 { color: var(--bright); }
-.score { width: 100%; border-collapse: separate; border-spacing: 4px; font-family: var(--mono); }
-.score th { font-size: .72rem; font-weight: 500; letter-spacing: .1em; color: #b9c7da; text-align: center; padding: 2px; }
+.score-wrap { overflow-x: auto; background: var(--navy); border: 1px solid var(--navy-edge); border-radius: 3px; padding: 6px; }
+.score { width: 100%; border-collapse: separate; border-spacing: 4px; }
+.score th { font: 500 .7rem var(--mono); letter-spacing: .1em; color: #b9c7da; text-align: center; padding: 2px; }
 .score th[scope="row"] { text-align: left; }
-.score td {
-  background: var(--navy-deep); color: var(--gold); text-align: center; font-weight: 700; font-size: 1.5rem;
-  padding: 6px 0; border-radius: 3px; font-variant-numeric: tabular-nums;
-}
-.score td.tot { color: var(--bright); }
-.score .of { display: block; font-size: .65rem; color: #7f93b0; font-weight: 500; }
-
-.pitboard { background: #0a0c0e; border: 6px solid #3a444e; }
-.board-msg { font: 800 italic clamp(1.4rem, 3.4vw, 1.9rem)/1.15 var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--gold); min-height: 2.3em; }
+.score td { background: #061634; color: var(--gold); text-align: center; font: 700 1.6rem/1.1 var(--display); padding: 6px 0; border-radius: 2px; font-variant-numeric: tabular-nums; }
+.score td.tot { color: var(--white); }
+.score .of { display: block; font: 500 .62rem var(--mono); color: #8ea3c9; }
+.board-msg { font: 600 clamp(1.5rem, 3.4vw, 2rem)/1.15 var(--display); text-transform: uppercase; color: var(--gold); min-height: 2.3em; }
 
 /* Race plan */
-.plan .wrap { padding-block: 8px 48px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
-.plan-head { display: grid; gap: 10px; margin-bottom: 20px; }
+.plan .wrap { padding-block: 8px 56px; display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
 .phases { display: grid; gap: 20px; }
-.phase { border: 1px solid var(--line); border-radius: 8px; background: var(--panel); overflow: hidden; }
-.phase-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 3px solid var(--c); }
-.phase-no {
-  width: 40px; height: 40px; border-radius: 4px; background: var(--c); color: #0b0e11;
-  display: grid; place-items: center; font: 900 italic 1.4rem var(--display);
-}
-.phase-head h3 { font-size: 1.5rem; font-weight: 800; font-style: italic; text-transform: uppercase; }
-.phase-count { font: 700 1rem var(--mono); color: var(--c); font-variant-numeric: tabular-nums; }
+.phase { --c: var(--p1); --ct: var(--silver); --ce: transparent; border: 1px solid var(--line); border-radius: 4px; background: var(--bg-2); overflow: hidden; }
+.phase[data-phase="2"] { --c: var(--p2); --ct: var(--teal); }
+.phase[data-phase="3"] { --c: var(--p3); --ct: var(--gold); }
+.phase[data-phase="4"] { --c: var(--p4); --ct: var(--silver); --ce: var(--navy-edge); }
+.phase-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border-bottom: 3px solid var(--c); box-shadow: 0 1px 0 var(--ce); }
+.phase-no { width: 40px; height: 40px; border-radius: 3px; background: var(--c); color: #0b0b0b; display: grid; place-items: center; font: 700 1.4rem var(--display); box-shadow: 0 0 0 1px var(--ce); }
+.phase[data-phase="4"] .phase-no { color: var(--gold); }
+.phase-count { font: 700 1rem var(--mono); color: var(--ct); font-variant-numeric: tabular-nums; }
 .items { list-style: none; margin: 0; padding: 0; }
 .item + .item { border-top: 1px solid var(--line); }
 .item label { display: grid; grid-template-columns: auto 3.2em minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; cursor: pointer; }
-.item label:hover { background: rgba(255,255,255,.02); }
+.item label:hover { background: rgba(255,255,255,.025); }
+.item.flash label { animation: flash 1.6s ease-out; }
+@keyframes flash { from { background: rgba(255,197,47,.18); } }
 .item input {
-  appearance: none; -webkit-appearance: none; margin: 1px 0 0; width: 24px; height: 22px; border-radius: 4px;
-  border: 2px solid var(--c); background: transparent; cursor: pointer; display: grid; place-items: center;
+  appearance: none; -webkit-appearance: none; margin: 1px 0 0; width: 24px; height: 22px; border-radius: 3px; cursor: pointer;
+  border: 2px solid var(--c); outline-offset: 3px; background: transparent; display: grid; place-items: center;
+  box-shadow: 0 0 0 1px var(--ce);
 }
-.item input::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: transparent; }
+.item input::after { content: ""; width: 8px; height: 8px; border-radius: 50%; }
 .item input:checked { background: var(--c); }
-.item input:checked::after { background: rgba(0,0,0,.28); box-shadow: inset 0 -2px 0 rgba(255,255,255,.35); }
-.tag { font: 700 .9rem var(--mono); color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
-.item.milestone .tag { color: var(--c); }
+.item input:checked::after { background: rgba(0,0,0,.3); box-shadow: inset 0 -2px 0 rgba(255,255,255,.35); }
+.tag { font: 700 .85rem var(--mono); color: var(--muted); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.item.milestone .tag { color: var(--gold); }
 .text { display: grid; gap: 2px; min-width: 0; }
-.title { color: var(--bright); font-weight: 700; }
-.sat { color: var(--muted); font-size: .92rem; }
+.title { color: var(--white); font-weight: 500; }
+.sat { color: var(--muted); font-size: .85rem; }
 .item.done .title { color: var(--muted); font-weight: 400; }
-.chip {
-  justify-self: start; font: 700 .68rem var(--mono); letter-spacing: .1em; text-transform: uppercase;
-  color: #111; background: var(--gold); padding: 2px 6px; border-radius: 3px; margin-top: 4px;
-}
+.chip { justify-self: start; font: 700 .66rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #0b0b0b; background: var(--gold); padding: 2px 6px; border-radius: 2px; margin-top: 4px; }
 
-.rack-panel { position: sticky; top: 16px; }
-.racked { font: 700 2rem/1 var(--mono); color: var(--bright); font-variant-numeric: tabular-nums; }
-.racked .of { font-size: .5em; color: var(--muted); }
+.rack-panel { position: sticky; top: 16px; display: grid; gap: 14px; padding: 18px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 4px; }
+.racked { font: 700 2.2rem/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+.racked .of { font-size: .5em; color: var(--silver); }
 .rack { display: grid; gap: 4px; }
-.slots {
-  display: flex; flex-direction: column-reverse; gap: 2px; padding: 6px;
-  background: #0b0e11; border: 1px solid var(--line);
-  border-inline: 8px solid #3a444e;
-}
-.slot { height: 11px; border-radius: 2px; background: #182027; }
-.slot.on {
-  background:
-    radial-gradient(circle, rgba(255,255,255,.38) 2px, transparent 2.6px) 6px 50% / 14px 100% repeat-x,
-    var(--c);
-}
+.slots { display: flex; flex-direction: column-reverse; gap: 2px; padding: 6px; background: var(--void); border: 1px solid var(--line); border-inline: 8px solid var(--metal); }
+.slot { height: 11px; border-radius: 2px; background: #181818; }
+.slot.on { background: radial-gradient(circle, rgba(255,255,255,.4) 2px, transparent 2.6px) 6px 50% / 14px 100% repeat-x, var(--c); box-shadow: inset 0 0 0 1px var(--ce, transparent); }
 .slot.drop { animation: drop .5s cubic-bezier(.2, .9, .3, 1.3); }
 @keyframes drop { from { transform: translateY(-26px); opacity: 0; } }
-.rack-ends { display: flex; justify-content: space-between; }
 
-/* The job */
-.job .wrap { padding-block: 8px 48px; display: grid; gap: 20px; }
-.moves { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
-.move { background: var(--panel); border: 1px solid var(--line); border-top: 4px solid var(--silver); border-radius: 6px; padding: 16px; display: grid; gap: 8px; align-content: start; }
-.move.home { border-top-color: var(--teal); }
-.move b { font: 900 italic 2rem/1 var(--display); font-stretch: 75%; text-transform: uppercase; color: var(--bright); }
-.move .chip { background: var(--teal); }
+/* The job, as bricks */
+.job .wrap { padding-block: 8px 56px; }
+.moves { list-style: none; margin: 0; padding: 12px 0 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px 14px; }
+.move {
+  position: relative; display: grid; gap: 8px; align-content: start; padding: 18px 16px 20px;
+  background: var(--navy); color: var(--white); border-radius: 4px;
+  box-shadow: inset 0 -6px 0 rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.15), 0 0 0 1px var(--navy-edge);
+  transition: transform .15s ease;
+}
+.move::before {
+  content: ""; position: absolute; left: 14px; right: 14px; top: -7px; height: 7px;
+  background: radial-gradient(ellipse 9px 7px at 50% 100%, var(--navy) 98%, transparent 100%) 0 0 / 28px 7px repeat-x;
+}
+.move:hover { transform: translateY(-4px); }
+.move b { font: 700 2rem/1 var(--display); text-transform: uppercase; color: var(--gold); }
+.move.home { background: var(--gold); color: #1a1407; box-shadow: inset 0 -6px 0 rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.4), 0 0 0 1px #b8891a; }
+.move.home::before { background: radial-gradient(ellipse 9px 7px at 50% 100%, var(--gold) 98%, transparent 100%) 0 0 / 28px 7px repeat-x; }
+.move.home b { color: var(--navy); }
+.move .chip { background: var(--navy); color: var(--gold); }
 
 /* Links */
-.crew .wrap { padding-block: 8px 48px; display: grid; gap: 20px; }
+.crew .wrap { padding-block: 8px 56px; }
 .groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .group { display: grid; gap: 10px; }
 .link {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; text-decoration: none;
-  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px;
+  position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 14px; align-items: center; text-decoration: none;
+  padding: 14px 16px; border: 1px solid #353535; border-radius: 3px; background: linear-gradient(180deg, #252525, var(--bg-2));
 }
-.link:hover { border-color: var(--teal); }
-.link .name { color: var(--bright); font-weight: 700; }
-.link .why { grid-column: 1; color: var(--muted); font-size: .92rem; }
-.link .go { grid-row: 1 / span 2; grid-column: 2; align-self: center; color: var(--teal); font: 700 1.2rem var(--mono); }
+.link:hover { border-color: var(--teal); box-shadow: 0 0 14px rgba(0,161,155,.25); }
+.link .led { grid-row: 1 / span 2; }
+.link .name { color: var(--white); font-weight: 500; }
+.link .why { grid-column: 2; color: var(--muted); font-size: .82rem; }
+.link .go { grid-row: 1 / span 2; grid-column: 3; color: var(--teal); font: 700 1.2rem var(--mono); }
 
 footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; justify-content: space-between; }
 .confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 
-@media (max-width: 900px) {
-  .pitwall .wrap { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 960px) {
+  .racks { grid-template-columns: minmax(0, 1fr); }
   .plan .wrap { grid-template-columns: minmax(0, 1fr); }
   .rack-panel { position: static; order: -1; }
   .slot { height: 7px; }
-  .moves { grid-template-columns: minmax(0, 1fr); }
+  .moves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .moves .move:last-child { grid-column: 1 / -1; }
   .groups { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 560px) {
-  .hero-top { grid-template-columns: minmax(0, 1fr); }
-  .readout { text-align: left; }
+@media (max-width: 640px) {
+  .hero::before { background: linear-gradient(180deg, rgba(18,18,18,.5) 0%, rgba(18,18,18,.7) 45%, var(--bg) 100%); }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 96px 32px; }
+  .readout { justify-items: start; text-align: left; }
+  .blade { padding-right: 16px; }
+  .blade::after { display: none; }
+  .rack-col { padding-inline: 24px; }
   .seg-labels { display: none; }
+  .brick { width: 24px; height: 12px; }
+  .brick::before { left: 3px; width: 7px; box-shadow: 11px 0 0 var(--bc); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .car { transition: none; }
-  .slot.drop { animation: none; }
+  .led.ok, .led.busy, .led.act, .slot.drop, .brick.snap, .item.flash label { animation: none; }
+  .brick, .move { transition: none; }
 }
 </style>
 </head>
 <body>
 
 <header class="hero">
+  <video class="hero-video" id="hero-video" autoplay muted loop playsinline preload="metadata" poster="media/hero.jpg" aria-hidden="true">
+    <source src="media/hero.mp4" type="video/mp4">
+  </video>
+  <button class="video-toggle" id="video-toggle" type="button">Pause video</button>
   <div class="wrap">
-    <div class="hero-top">
-      <div>
-        <p class="label">Data center technician program · 3 hours a week</p>
-        <h1>Rack <span class="amp">&amp;</span> Race</h1>
-        <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every tick racks a brick.</p>
-        <div class="driver">
-          <label class="label" for="driver">Driver</label>
-          <input id="driver" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
-        </div>
-      </div>
-      <div class="readout">
-        <p class="label">Current lap</p>
-        <p class="lap"><span id="lap-now">01</span><span class="of"> / 30</span></p>
-        <p class="cal" id="cal"></p>
+    <div class="hero-copy">
+      <p class="label teal">Data center technician program · 3 hours a week</p>
+      <h1>Rack <span class="amp">&amp;</span> Race</h1>
+      <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every tick racks a brick.</p>
+      <div class="driver">
+        <label class="label" for="driver">Driver</label>
+        <input id="driver" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
       </div>
     </div>
-
-    <div>
-      <div class="track" role="img" id="track" aria-label="Race progress">
-        <span class="ticks"></span>
-        <span class="start"></span>
-        <span class="marker"></span>
-        <span class="finish"></span>
-        <svg class="car" id="car" viewBox="0 0 96 40" aria-hidden="true">
-          <rect x="2" y="8" width="10" height="14" rx="1" fill="#c3ccd5"/>
-          <rect x="8" y="18" width="76" height="10" rx="1" fill="#1cc5b3"/>
-          <rect x="84" y="21" width="10" height="6" rx="1" fill="#1cc5b3"/>
-          <rect x="14" y="15" width="6" height="3" fill="#5fe0d2"/>
-          <rect x="24" y="15" width="6" height="3" fill="#5fe0d2"/>
-          <rect x="60" y="15" width="6" height="3" fill="#5fe0d2"/>
-          <rect x="70" y="15" width="6" height="3" fill="#5fe0d2"/>
-          <rect x="36" y="12" width="20" height="6" rx="1" fill="#14294a"/>
-          <rect x="41" y="6" width="9" height="7" rx="2" fill="#f6b93b"/>
-          <rect x="86" y="28" width="9" height="4" fill="#c3ccd5"/>
-          <rect x="12" y="24" width="16" height="14" rx="3" fill="#0b0d10" stroke="#3a444e"/>
-          <rect x="62" y="24" width="16" height="14" rx="3" fill="#0b0d10" stroke="#3a444e"/>
-        </svg>
-      </div>
-      <div class="track-legend">
-        <span class="label">Lap 1 · Nov 2</span>
-        <span class="label gold">Core 1 exam · Lap 21</span>
-        <span class="label">A+ · Lap 30</span>
-      </div>
+    <div class="readout">
+      <p class="label">Current lap</p>
+      <p class="lap"><span id="lap-now">01</span><span class="of"> / 30</span></p>
+      <p class="cal" id="cal"></p>
+      <p class="next" id="next"></p>
     </div>
-
-    <p class="next" id="next"></p>
-    <p class="flag" id="flag" hidden>Rack full. A+ certified. Chequered flag.</p>
   </div>
 </header>
 
-<section class="pitwall" aria-label="Pit wall">
+<section class="circuit-sec" aria-labelledby="circuit-h">
   <div class="wrap">
-    <div class="panel">
-      <div>
-        <p class="label">One hour, five parts</p>
-        <h3>Session timer</h3>
+    <div class="circuit-head">
+      <div class="section-head">
+        <p class="label teal">30 laps through the rack</p>
+        <h2 id="circuit-h">The circuit</h2>
       </div>
-      <div class="lights" id="lights" aria-hidden="true">
-        <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
-      </div>
-      <div>
-        <p class="seg-name" id="seg-name">Warm-up</p>
-        <p class="clock" id="clock" aria-live="off">05:00</p>
-      </div>
-      <div class="segbar" id="segbar"></div>
-      <div class="seg-labels label" id="seg-labels"></div>
-      <p id="seg-note"></p>
-      <div class="controls">
-        <button class="primary" id="go" type="button">Lights out</button>
-        <button id="skip" type="button">Skip part</button>
-        <button id="reset-timer" type="button">Reset</button>
-      </div>
+      <p class="label" id="laps-done">0 of 30 laps done</p>
     </div>
+    <div class="circuit" id="circuit">
+      <svg id="circuit-svg" role="img" aria-labelledby="circuit-h"></svg>
+      <div class="towers" id="towers"></div>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="swatch" style="background:var(--teal);box-shadow:0 0 8px var(--teal)"></span><span class="label">Laps done</span></span>
+      <span class="key"><span class="swatch" style="background:var(--navy);box-shadow:0 0 0 1px var(--navy-edge)"></span><span class="label">Milestone ahead</span></span>
+      <span class="key"><span class="swatch" style="background:var(--gold)"></span><span class="label">Milestone done</span></span>
+      <span class="label">Tap a brick to jump to it in the race plan</span>
+    </div>
+  </div>
+</section>
 
-    <div class="stack">
-      <div class="panel scoreboard">
-        <div>
-          <p class="label">By phase</p>
-          <h3>Scoreboard</h3>
-        </div>
-        <div style="overflow-x:auto">
-          <table class="score" id="score">
-            <thead><tr><th scope="col"></th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">TOT</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+<section class="command" aria-labelledby="command-h">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="label teal">Command center</p>
+      <h2 id="command-h">Pit wall</h2>
+    </div>
+    <div class="racks">
+      <div class="rack-col">
+        <article class="blade" aria-labelledby="timer-h">
+          <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led" id="timer-led"></span></span>
+          <div>
+            <p class="label">One hour, five parts</p>
+            <h3 id="timer-h">Session timer</h3>
+          </div>
+          <div class="lights" id="lights" aria-hidden="true">
+            <span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span><span class="light"></span>
+          </div>
+          <div>
+            <p class="seg-name" id="seg-name">Warm-up</p>
+            <p class="clock" id="clock">05:00</p>
+          </div>
+          <div class="segbar" id="segbar"></div>
+          <div class="seg-labels label" id="seg-labels"></div>
+          <p id="seg-note"></p>
+          <div class="controls">
+            <button class="primary" id="go" type="button">Lights out</button>
+            <button id="skip" type="button">Skip part</button>
+            <button id="reset-timer" type="button">Reset</button>
+          </div>
+        </article>
+        <article class="blade" aria-labelledby="board-h">
+          <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led act"></span></span>
+          <p class="label" id="board-h">Pit board</p>
+          <p class="board-msg" id="board-msg" aria-live="polite"></p>
+          <div><button id="board-next" type="button">Next message</button></div>
+        </article>
       </div>
-      <div class="panel pitboard">
-        <p class="label">Pit board</p>
-        <p class="board-msg" id="board-msg" aria-live="polite"></p>
-        <div><button id="board-next" type="button">Next message</button></div>
+      <div class="rack-col">
+        <article class="blade" aria-labelledby="certs-h">
+          <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led act"></span></span>
+          <h3 id="certs-h">Certifications &amp; courses</h3>
+          <ul class="status-list" id="certs"></ul>
+        </article>
+        <article class="blade" aria-labelledby="skills-h">
+          <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led act"></span></span>
+          <h3 id="skills-h">Hands-on skills</h3>
+          <ul class="status-list" id="skills"></ul>
+        </article>
+        <article class="blade" aria-labelledby="score-h">
+          <span class="blade-leds" aria-hidden="true"><span class="led ok"></span><span class="led act"></span></span>
+          <h3 id="score-h">Scoreboard</h3>
+          <div class="score-wrap">
+            <table class="score" id="score">
+              <thead><tr><th scope="col"><span class="label">Phase</span></th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">TOT</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
       </div>
     </div>
   </div>
@@ -346,14 +412,14 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
 <main class="plan" id="plan">
   <div class="wrap">
     <div>
-      <div class="plan-head">
-        <p class="label">30 laps · 12 milestones · 42 bricks</p>
+      <div class="section-head">
+        <p class="label teal">30 laps · 12 milestones · 42 bricks</p>
         <h2>Race plan</h2>
         <p class="lead">Tick a lap when all three sessions that week are done. Missed a session? No double-ups, just keep going. Each tick racks one brick.</p>
       </div>
       <div class="phases" id="phases"></div>
     </div>
-    <aside class="panel rack-panel" aria-label="Rack progress">
+    <aside class="rack-panel" aria-label="Rack progress">
       <div>
         <p class="label">42U server rack</p>
         <p class="racked"><span id="racked">0</span><span class="of"> / 42 racked</span></p>
@@ -369,10 +435,10 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
 
 <section class="job" aria-labelledby="job-h">
   <div class="wrap">
-    <div class="plan-head">
-      <p class="label">What a data center technician does</p>
+    <div class="section-head">
+      <p class="label teal">What a data center technician does</p>
       <h2 id="job-h">The job in five moves</h2>
-      <p class="lead">Two of these are already done at home. The rest is the same work at a bigger scale, done by the written steps.</p>
+      <p class="lead">The gold bricks are already done at home. The rest is the same work at a bigger scale, done by the written steps.</p>
     </div>
     <ul class="moves">
       <li class="move"><b>Rack</b><span>Mount servers on the rails of a 42U rack.</span></li>
@@ -386,26 +452,26 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
 
 <section class="crew" aria-labelledby="crew-h">
   <div class="wrap">
-    <div class="plan-head">
-      <p class="label">Links</p>
+    <div class="section-head">
+      <p class="label teal">Links</p>
       <h2 id="crew-h">Pit crew</h2>
     </div>
     <div class="groups">
       <div class="group">
         <p class="label">Training</p>
-        <a class="link" href="https://www.coursera.org/professional-certificates/google-it-support" target="_blank" rel="noopener"><span class="name">Google IT Support Certificate</span><span class="why">Laps 3–12. Audit free, or ask Coursera for financial aid.</span><span class="go">↗</span></a>
-        <a class="link" href="https://www.professormesser.com/" target="_blank" rel="noopener"><span class="name">Professor Messer</span><span class="why">Free A+ Core 1 and Core 2 video courses. Laps 13–30.</span><span class="go">↗</span></a>
-        <a class="link" href="https://perscholas.org/" target="_blank" rel="noopener"><span class="name">Per Scholas Chicago</span><span class="why">Free 15-week, full-time data center course with job matching.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.coursera.org/professional-certificates/google-it-support" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Google IT Support Certificate</span><span class="why">Laps 3–12. Audit free, or ask Coursera for financial aid.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.professormesser.com/" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Professor Messer</span><span class="why">Free A+ Core 1 and Core 2 video courses. Laps 13–30.</span><span class="go">↗</span></a>
+        <a class="link" href="https://perscholas.org/" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Per Scholas Chicago</span><span class="why">Free 15-week, full-time data center course with job matching.</span><span class="go">↗</span></a>
       </div>
       <div class="group">
         <p class="label">Jobs</p>
-        <a class="link" href="https://www.microsoft.com/en-us/diversity/inside-microsoft/cross-disability/neurodiversityhiring" target="_blank" rel="noopener"><span class="name">Microsoft Neurodiversity Hiring</span><span class="why">Data center technician roles with an adapted interview process.</span><span class="go">↗</span></a>
-        <a class="link" href="https://www.experis.com/en/job/399059/pathways-data-center-technician" target="_blank" rel="noopener"><span class="name">Experis Pathways</span><span class="why">Paid training, then mentorship in a Chicago data center.</span><span class="go">↗</span></a>
-        <a class="link" href="https://www.hireautism.org/" target="_blank" rel="noopener"><span class="name">Hire Autism</span><span class="why">Job board for autism-friendly employers.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.microsoft.com/en-us/diversity/inside-microsoft/cross-disability/neurodiversityhiring" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Microsoft Neurodiversity Hiring</span><span class="why">Data center technician roles with an adapted interview process.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.experis.com/en/job/399059/pathways-data-center-technician" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Experis Pathways</span><span class="why">Paid training, then mentorship in a Chicago data center.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.hireautism.org/" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Hire Autism</span><span class="why">Job board for autism-friendly employers.</span><span class="go">↗</span></a>
       </div>
       <div class="group">
         <p class="label">Support</p>
-        <a class="link" href="https://www.drs.illinois.gov/" target="_blank" rel="noopener"><span class="name">Illinois DRS</span><span class="why">Vocational rehab. Can pay for exams, courses and a job coach.</span><span class="go">↗</span></a>
+        <a class="link" href="https://www.drs.illinois.gov/" target="_blank" rel="noopener"><span class="led busy"></span><span class="name">Illinois DRS</span><span class="why">Vocational rehab. Can pay for exams, courses and a job coach.</span><span class="go">↗</span></a>
       </div>
     </div>
   </div>
@@ -486,6 +552,25 @@ const ITEMS = PHASES.flatMap(p => [
   ...LAPS.filter(l => l.phase === p.id)
 ]);
 
+const lapIds = (from, to) => LAPS.slice(from - 1, to).map(l => l.id);
+const CERTS = [
+  { name: "Google IT courses 1–2", ids: lapIds(3, 12) },
+  { name: "CompTIA A+ Core 1", ids: lapIds(13, 21), earned: "m-core1" },
+  { name: "CompTIA A+ Core 2", ids: lapIds(22, 30), earned: "m-core2" }
+];
+
+const SKILLS = [
+  { name: "PC building", home: true },
+  { name: "Part swaps (GPU, RAM)", home: true },
+  { name: "Linux install", id: "lap-4" },
+  { name: "Network command-line tools", id: "lap-8" },
+  { name: "Home network mapping", id: "lap-10" },
+  { name: "Cable management", id: "lap-12" },
+  { name: "Virtual machines", id: "lap-18" },
+  { name: "Account permissions", id: "lap-23" },
+  { name: "Written procedures", id: "lap-27" }
+];
+
 const STINTS = [
   { name: "Warm-up", min: 5, note: "Open the race plan and read the one task for today." },
   { name: "Stint 1", min: 20, note: "Phone in another room. Eyes on the task." },
@@ -512,7 +597,7 @@ const STORE_KEY = "rack-and-race-v1";
 
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
-const phaseOf = id => PHASES.find(p => p.id === id);
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 function loadState() {
   try {
@@ -526,11 +611,171 @@ const state = loadState();
 function saveState() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch { /* storage blocked: progress lasts this visit only */ }
 }
+const isDone = id => !!state.done[id];
+const lapsDone = () => LAPS.filter(l => isDone(l.id)).length;
+
+/* Hero video */
+function setupVideo() {
+  const video = $("hero-video");
+  const toggle = $("video-toggle");
+  const show = () => { toggle.textContent = video.paused ? "Play video" : "Pause video"; };
+  video.addEventListener("play", show);
+  video.addEventListener("pause", show);
+  if (reducedMotion.matches) { video.removeAttribute("autoplay"); video.pause(); }
+  show();
+  toggle.addEventListener("click", () => {
+    if (video.paused) video.play().catch(show);
+    else video.pause();
+  });
+}
+
+/* Circuit: a track that snakes through the rack, one row of laps per bay */
+const circuit = { geom: null, shown: 0, raf: 0 };
+
+function buildCircuit() {
+  const W = $("circuit").clientWidth;
+  if (!W) return;
+  const narrow = W < 640;
+  const rows = narrow ? 6 : 3;
+  const lpr = 30 / rows;
+  const gap = narrow ? 96 : 124;
+  const r = gap / 2;
+  const m = narrow ? 30 : 46;
+  const x0 = m + r, x1 = W - m - r, S = x1 - x0, T = Math.PI * r;
+  const top = 76;
+  const H = top + (rows - 1) * gap + 46;
+  const yRow = i => top + i * gap;
+  const lenAt = t => {
+    if (t <= 0) return 0;
+    const row = Math.min(Math.ceil(t / lpr) - 1, rows - 1);
+    return row * (S + T) + ((t - row * lpr) / lpr) * S;
+  };
+  const total = rows * S + (rows - 1) * T;
+  const xAt = t => {
+    const row = Math.min(Math.ceil(t / lpr) - 1, rows - 1);
+    const f = (t - row * lpr) / lpr;
+    return { x: row % 2 === 0 ? x0 + f * S : x1 - f * S, y: yRow(row) };
+  };
+
+  let d = `M${x0} ${yRow(0)}`;
+  for (let i = 0; i < rows; i++) {
+    const right = i % 2 === 0;
+    d += ` H${right ? x1 : x0}`;
+    if (i < rows - 1) d += ` A${r} ${r} 0 0 ${right ? 1 : 0} ${right ? x1 : x0} ${yRow(i + 1)}`;
+  }
+  const lastRight = (rows - 1) % 2 === 0;
+  const finishX = lastRight ? x1 : x0;
+  const shelves = Array.from({ length: rows - 1 }, (_, i) =>
+    `<line x1="${x0}" x2="${x1}" y1="${yRow(i) + gap / 2}" y2="${yRow(i) + gap / 2}" stroke="#232323" stroke-width="2"/>`).join("");
+  const lapLabels = LAPS.map(l => {
+    const p = xAt(l.lap - 0.5);
+    return `<text class="lapno" id="lapno-${l.lap}" x="${p.x}" y="${p.y + 30}" text-anchor="middle">${l.lap}</text>`;
+  }).join("");
+
+  const svg = $("circuit-svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.innerHTML = `
+    <defs>
+      <pattern id="rail" width="14" height="18" patternUnits="userSpaceOnUse"><rect width="14" height="18" fill="#2b2b2b"/><rect x="4" y="6" width="6" height="6" rx="1" fill="#0b0b0b"/></pattern>
+      <pattern id="checker" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#C8C8C8"/><rect width="4" height="4" fill="#121212"/><rect x="4" y="4" width="4" height="4" fill="#121212"/></pattern>
+    </defs>
+    <rect x="6" y="0" width="14" height="${H}" fill="url(#rail)"/>
+    <rect x="${W - 20}" y="0" width="14" height="${H}" fill="url(#rail)"/>
+    ${shelves}
+    <path d="${d}" fill="none" stroke="#0A2351" stroke-width="28"/>
+    <path d="${d}" fill="none" stroke="#FFC52F" stroke-width="28" stroke-dasharray="10 10"/>
+    <path d="${d}" fill="none" stroke="#242424" stroke-width="20"/>
+    <path d="${d}" fill="none" stroke="#3c3c3c" stroke-width="1.5" stroke-dasharray="6 9"/>
+    <path id="glow" class="glow" d="${d}" fill="none" stroke="#00A19B" stroke-width="5" stroke-linecap="round" stroke-dasharray="${total}" stroke-dashoffset="${total}"/>
+    <rect x="${x0 - 2}" y="${yRow(0) - 10}" width="4" height="20" fill="#C8C8C8"/>
+    <rect x="${finishX - 4}" y="${yRow(rows - 1) - 10}" width="8" height="20" fill="url(#checker)"/>
+    ${lapLabels}
+    <g id="car">
+      <rect x="-22" y="-8" width="5" height="9" rx="1" fill="#C8C8C8"/>
+      <rect x="-19" y="-3" width="36" height="6" rx="1" fill="#00A19B"/>
+      <rect x="17" y="-2" width="6" height="4" rx="1" fill="#00A19B"/>
+      <rect x="-14" y="-5" width="4" height="2" fill="#5fe0d2"/>
+      <rect x="10" y="-5" width="4" height="2" fill="#5fe0d2"/>
+      <rect x="-5" y="-6" width="10" height="3" rx="1" fill="#0A2351"/>
+      <rect x="-2" y="-9" width="5" height="4" rx="1.5" fill="#FFC52F"/>
+      <rect x="-17" y="0" width="9" height="8" rx="2" fill="#0b0b0b" stroke="#444"/>
+      <rect x="7" y="0" width="9" height="8" rx="2" fill="#0b0b0b" stroke="#444"/>
+    </g>`;
+
+  const byLap = new Map();
+  for (const ms of MILESTONES) byLap.set(ms.lap, [...(byLap.get(ms.lap) || []), ms]);
+  $("towers").innerHTML = Array.from(byLap, ([lap, list]) => {
+    const p = xAt(lap - 0.5);
+    return `<div class="tower" style="left:${p.x}px;top:${p.y - 18}px">${list.map(ms =>
+      `<button class="brick" type="button" data-ms="${ms.id}"><span class="tip">Lap ${lap} · ${ms.title}</span></button>`).join("")}</div>`;
+  }).join("");
+
+  circuit.geom = { lenAt, total, glow: $("glow"), car: $("car"), carScale: narrow ? 1 : 1.5 };
+  circuit.shown = lenAt(lapsDone());
+  placeCar(circuit.shown);
+  paintTowers();
+}
+
+function placeCar(len) {
+  const { glow, car, total, carScale } = circuit.geom;
+  glow.style.strokeDashoffset = total - len;
+  const a = glow.getPointAtLength(Math.max(len - 1, 0));
+  const b = glow.getPointAtLength(Math.min(len + 1, total));
+  const p = glow.getPointAtLength(len);
+  const angle = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+  const flip = Math.abs(angle) > 90 ? -1 : 1;
+  car.setAttribute("transform", `translate(${p.x} ${p.y}) rotate(${angle}) scale(${carScale} ${carScale * flip})`);
+}
+
+function driveCircuit() {
+  if (!circuit.geom) return;
+  const from = circuit.shown;
+  const to = circuit.geom.lenAt(lapsDone());
+  cancelAnimationFrame(circuit.raf);
+  if (reducedMotion.matches || from === to) { circuit.shown = to; placeCar(to); return; }
+  const start = performance.now();
+  const ms = Math.min(2400, 700 + Math.abs(to - from) * 0.6);
+  const frame = now => {
+    const k = Math.min(1, (now - start) / ms);
+    const e = k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+    circuit.shown = from + (to - from) * e;
+    placeCar(circuit.shown);
+    if (k < 1) circuit.raf = requestAnimationFrame(frame);
+  };
+  circuit.raf = requestAnimationFrame(frame);
+}
+
+function paintTowers(justDone) {
+  const ms = MILESTONES.find(m => m.id === justDone);
+  for (const b of $("towers").querySelectorAll(".brick")) {
+    const m = MILESTONES.find(x => x.id === b.dataset.ms);
+    b.classList.toggle("done", isDone(m.id));
+    b.setAttribute("aria-label", `Milestone, lap ${m.lap}: ${m.title}. ${isDone(m.id) ? "Done" : "Not done yet"}`);
+    if (ms && m === ms && isDone(m.id) && !reducedMotion.matches) {
+      b.classList.remove("snap");
+      void b.offsetWidth;
+      b.classList.add("snap");
+    }
+  }
+  const now = LAPS.find(l => !isDone(l.id));
+  for (const t of $("circuit-svg").querySelectorAll(".lapno")) t.classList.toggle("now", !!now && t.id === "lapno-" + now.lap);
+}
+
+$("towers").addEventListener("click", e => {
+  const b = e.target.closest(".brick");
+  if (!b) return;
+  const row = $("row-" + b.dataset.ms);
+  row.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "center" });
+  row.classList.remove("flash");
+  void row.offsetWidth;
+  row.classList.add("flash");
+  row.querySelector("input").focus({ preventScroll: true });
+});
 
 /* Race plan */
 function buildPlan() {
   $("phases").innerHTML = PHASES.map(p => `
-    <section class="phase" style="--c:${p.color}" aria-labelledby="ph-${p.id}">
+    <section class="phase" data-phase="${p.id}" aria-labelledby="ph-${p.id}">
       <div class="phase-head">
         <span class="phase-no">${p.id}</span>
         <div><h3 id="ph-${p.id}">${p.name}</h3><p class="label">${p.span}</p></div>
@@ -557,13 +802,12 @@ function buildPlan() {
     const id = e.target.dataset.id;
     if (e.target.checked) state.done[id] = true; else delete state.done[id];
     saveState();
-    update();
+    update(id);
   });
 
   $("slots").innerHTML = ITEMS.map(() => '<span class="slot"></span>').join("");
 }
 
-/* Scoreboard */
 function buildScore() {
   $("score").tBodies[0].innerHTML = ["Laps", "Goals"].map(row => `
     <tr><th scope="row">${row.toUpperCase()}</th>
@@ -572,10 +816,28 @@ function buildScore() {
     </tr>`).join("");
 }
 
+const statusRow = (led, name, cls, text) =>
+  `<li><span class="led ${led}" aria-hidden="true"></span><span class="name">${name}</span><span class="state ${cls}">${text}</span></li>`;
+
+function paintBlades() {
+  $("certs").innerHTML = CERTS.map(c => {
+    const n = c.ids.filter(isDone).length;
+    const earned = c.earned ? isDone(c.earned) : n === c.ids.length;
+    if (earned) return statusRow("ok", c.name, "on", c.earned ? "Earned" : "Done");
+    if (n) return statusRow("busy", c.name, "mid", `${n} / ${c.ids.length} laps`);
+    return statusRow("", c.name, "", "Not started");
+  }).join("");
+  $("skills").innerHTML = SKILLS.map(s => {
+    if (s.home) return statusRow("ok", s.name, "on", "Done at home");
+    const lap = s.id.slice(4);
+    return isDone(s.id) ? statusRow("ok", s.name, "on", `Lap ${lap}`) : statusRow("", s.name, "", `Lap ${lap}`);
+  }).join("");
+}
+
 let racked = 0;
-function update() {
-  const done = it => !!state.done[it.id];
-  const lapsDone = LAPS.filter(done).length;
+function update(changed) {
+  const done = it => isDone(it.id);
+  const laps = lapsDone();
   const doneItems = ITEMS.filter(done);
 
   for (const it of ITEMS) {
@@ -588,35 +850,37 @@ function update() {
   if (current) $("row-" + current.id).querySelector(".text").insertAdjacentHTML("beforeend", '<span class="chip">This lap</span>');
 
   $("lap-now").textContent = pad(current ? current.lap : 30);
-  $("car").style.setProperty("--p", lapsDone / 30);
-  $("track").setAttribute("aria-label", `Race progress: ${lapsDone} of 30 laps done`);
-
+  $("laps-done").textContent = `${laps} of 30 laps done`;
   const nextMs = MILESTONES.find(m => !done(m));
   $("next").innerHTML = nextMs
-    ? `<span class="label">Next milestone</span><strong>${nextMs.title}</strong><span class="label">Lap ${nextMs.lap}</span>`
-    : "";
-  $("flag").hidden = doneItems.length < ITEMS.length;
+    ? `<span class="label">Next milestone · Lap ${nextMs.lap}</span><br><strong>${nextMs.title}</strong>`
+    : `<strong>Rack full. A+ certified. Chequered flag.</strong>`;
 
   for (const p of PHASES) {
     const items = ITEMS.filter(it => it.phase === p.id);
     $("count-" + p.id).textContent = `${items.filter(done).length} / ${items.length}`;
-    const laps = LAPS.filter(l => l.phase === p.id);
+    const phaseLaps = LAPS.filter(l => l.phase === p.id);
     const goals = MILESTONES.filter(m => m.phase === p.id);
-    $(`sc-Laps-${p.id}`).innerHTML = `${laps.filter(done).length}<span class="of">of ${laps.length}</span>`;
+    $(`sc-Laps-${p.id}`).innerHTML = `${phaseLaps.filter(done).length}<span class="of">of ${phaseLaps.length}</span>`;
     $(`sc-Goals-${p.id}`).innerHTML = `${goals.filter(done).length}<span class="of">of ${goals.length}</span>`;
   }
-  $("sc-Laps-tot").innerHTML = `${lapsDone}<span class="of">of 30</span>`;
+  $("sc-Laps-tot").innerHTML = `${laps}<span class="of">of 30</span>`;
   $("sc-Goals-tot").innerHTML = `${MILESTONES.filter(done).length}<span class="of">of 12</span>`;
 
-  const slots = $("slots").children;
-  Array.from(slots).forEach((slot, i) => {
+  Array.from($("slots").children).forEach((slot, i) => {
     const it = doneItems[i];
+    const phase = it && PHASES.find(p => p.id === it.phase);
     slot.classList.toggle("on", !!it);
     slot.classList.toggle("drop", !!it && i >= racked);
-    slot.style.setProperty("--c", it ? phaseOf(it.phase).color : "");
+    slot.style.setProperty("--c", phase ? phase.color : "");
+    slot.style.setProperty("--ce", phase && phase.id === 4 ? "var(--navy-edge)" : "");
   });
   racked = doneItems.length;
   $("racked").textContent = racked;
+
+  paintBlades();
+  paintTowers(changed);
+  driveCircuit();
 }
 
 function showCalendar() {
@@ -627,20 +891,17 @@ function showCalendar() {
     : lap > 30 ? "Calendar: race weeks complete" : `Calendar: week of lap ${lap}`;
 }
 
-/* Driver */
 function setupDriver() {
   const input = $("driver");
   input.value = state.driver;
   input.addEventListener("input", () => { state.driver = input.value.trim(); saveState(); });
 }
 
-/* Pit board */
 function showBoard() { $("board-msg").textContent = BOARD[state.board % BOARD.length]; }
 $("board-next").addEventListener("click", () => { state.board = (state.board + 1) % BOARD.length; saveState(); showBoard(); });
 
 /* Session timer */
 const timer = { seg: 0, left: STINTS[0].min * 60000, endAt: 0, tick: 0, audio: null, lock: null, busy: false };
-const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
 function buildTimer() {
   $("segbar").innerHTML = STINTS.map(s => `<span class="seg" style="flex:${s.min}"><span></span></span>`).join("");
@@ -655,8 +916,9 @@ function drawTimer() {
   $("seg-note").textContent = s.note;
   Array.from($("segbar").children).forEach((el, i) => {
     el.classList.toggle("past", i < timer.seg);
-    el.firstElementChild.style.width = i === timer.seg ? `${100 - (timer.left / (s.min * 600))}%` : "";
+    el.firstElementChild.style.width = i === timer.seg ? `${100 - timer.left / (s.min * 600)}%` : "";
   });
+  $("timer-led").className = timer.tick ? "led busy" : "led";
   $("go").textContent = timer.tick ? "Pause" : timer.left < s.min * 60000 || timer.seg > 0 ? "Resume" : "Lights out";
 }
 
@@ -692,6 +954,24 @@ function releaseScreen() {
   timer.lock = null;
 }
 
+function nextSegment() {
+  timer.seg = (timer.seg + 1) % STINTS.length;
+  timer.left = STINTS[timer.seg].min * 60000;
+  timer.endAt = Date.now() + timer.left;
+}
+
+function resetTimer() {
+  timer.seg = 0;
+  timer.left = STINTS[0].min * 60000;
+  drawTimer();
+}
+
+function stopTimer() {
+  clearInterval(timer.tick);
+  timer.tick = 0;
+  releaseScreen();
+}
+
 function step() {
   timer.left = timer.endAt - Date.now();
   if (timer.left <= 0) {
@@ -707,23 +987,11 @@ function step() {
   drawTimer();
 }
 
-function nextSegment() {
-  timer.seg = (timer.seg + 1) % STINTS.length;
-  timer.left = STINTS[timer.seg].min * 60000;
-  timer.endAt = Date.now() + timer.left;
-}
-
 function runTimer() {
   timer.endAt = Date.now() + timer.left;
   timer.tick = setInterval(step, 250);
   holdScreen();
   drawTimer();
-}
-
-function stopTimer() {
-  clearInterval(timer.tick);
-  timer.tick = 0;
-  releaseScreen();
 }
 
 $("go").addEventListener("click", async () => {
@@ -735,8 +1003,7 @@ $("go").addEventListener("click", async () => {
     return;
   }
   try { timer.audio ||= new AudioContext(); } catch { timer.audio = null; }
-  const fresh = timer.seg === 0 && timer.left === STINTS[0].min * 60000;
-  if (fresh) {
+  if (timer.seg === 0 && timer.left === STINTS[0].min * 60000) {
     timer.busy = true;
     $("go").disabled = true;
     await lightsOut();
@@ -745,12 +1012,6 @@ $("go").addEventListener("click", async () => {
   }
   runTimer();
 });
-
-function resetTimer() {
-  timer.seg = 0;
-  timer.left = STINTS[0].min * 60000;
-  drawTimer();
-}
 
 $("skip").addEventListener("click", () => {
   if (timer.busy) return;
@@ -780,15 +1041,23 @@ $("clear-yes").addEventListener("click", () => {
   $("clear").hidden = false;
 });
 
+setupVideo();
 buildPlan();
 buildScore();
 buildTimer();
 setupDriver();
 showBoard();
 showCalendar();
-racked = ITEMS.filter(it => state.done[it.id]).length;
+racked = ITEMS.filter(it => isDone(it.id)).length;
+buildCircuit();
 update();
 drawTimer();
+
+let lastWidth = $("circuit").clientWidth;
+new ResizeObserver(() => {
+  const w = $("circuit").clientWidth;
+  if (w !== lastWidth) { lastWidth = w; buildCircuit(); }
+}).observe($("circuit"));
 </script>
 </body>
 </html>
