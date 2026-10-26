@@ -151,7 +151,8 @@ h1 .amp { color: var(--teal); text-shadow: 0 0 22px var(--teal-glow), 0 0 4px va
 .cal { color: var(--silver); font-size: .85rem; }
 .next { max-width: 30ch; font-size: .85rem; }
 .next strong { color: var(--white); font-weight: 500; }
-.video-toggle { position: absolute; top: calc(var(--hud-in) + 12px); right: calc(max(var(--hud-in), env(safe-area-inset-right, 0px)) + 12px); font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
+.hero-tools { position: absolute; top: calc(var(--hud-in) + 12px); right: calc(max(var(--hud-in), env(safe-area-inset-right, 0px)) + 12px); display: flex; gap: 8px; }
+.hero-tools button { font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
 
 /* Circuit */
 .circuit-sec .wrap { padding-block: 40px 56px; }
@@ -263,9 +264,12 @@ h1 .amp { color: var(--teal); text-shadow: 0 0 22px var(--teal-glow), 0 0 4px va
 .phase-count { font: 700 1rem var(--mono); color: var(--ct); font-variant-numeric: tabular-nums; }
 .items { list-style: none; margin: 0; padding: 0; }
 .item + .item { border-top: 1px solid var(--line); }
-.item label { display: grid; grid-template-columns: auto 3.2em minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; cursor: pointer; }
-.item label:hover { background: rgba(255,255,255,.025); }
-.item.flash label { animation: flash 1.6s ease-out; }
+/* First column fits three 24px session boxes, so milestone and lap text line up. */
+.row { display: grid; grid-template-columns: 80px 3.2em minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px 16px; }
+label.row { cursor: pointer; }
+label.row:hover { background: rgba(255,255,255,.025); }
+.item.flash .row { animation: flash 1.6s ease-out; }
+.sessions { display: flex; gap: 4px; }
 @keyframes flash { from { background: rgba(255,197,47,.18); } }
 .item input {
   appearance: none; -webkit-appearance: none; margin: 1px 0 0; width: 24px; height: 22px; border-radius: 3px; cursor: pointer;
@@ -351,7 +355,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
   .brick::before { left: 3px; width: 7px; box-shadow: 11px 0 0 var(--bc); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .led.ok, .led.busy, .led.act, .slot.drop, .brick.snap, .item.flash label { animation: none; }
+  .led.ok, .led.busy, .led.act, .slot.drop, .brick.snap, .item.flash .row { animation: none; }
   .brick, .move { transition: none; }
 }
 </style>
@@ -363,12 +367,18 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
     <source src="media/hero.mp4" type="video/mp4">
   </video>
   <div class="hero-mesh" aria-hidden="true"></div>
-  <button class="video-toggle" id="video-toggle" type="button">Pause video</button>
+  <div class="hero-tools">
+    <button id="sound-toggle" type="button">Mute sounds</button>
+    <button id="video-toggle" type="button">Pause video</button>
+  </div>
+  <audio id="sfx-start" src="media/timer-start.mp3" preload="auto"></audio>
+  <audio id="sfx-snap" src="media/brick-snap.mp3" preload="auto"></audio>
+  <audio id="sfx-lap" src="media/lap-complete.mp3" preload="auto"></audio>
   <div class="wrap">
     <div class="hero-copy">
       <p class="label teal">Data center technician program · 3 hours a week</p>
       <h1>Rack <span class="amp">&amp;</span> Race</h1>
-      <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every tick racks a brick.</p>
+      <p class="lead">From PC builder to data center technician in 30 laps. Three 1-hour sessions a week. Every finished lap racks a brick.</p>
       <div class="driver">
         <label class="label" for="driver">Driver</label>
         <input id="driver" type="text" maxlength="24" placeholder="Your name" autocomplete="off">
@@ -474,7 +484,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
       <div class="section-head">
         <p class="label teal">30 laps · 12 milestones · 42 bricks</p>
         <h2>Race plan</h2>
-        <p class="lead">Tick a lap when all three sessions that week are done. Missed a session? No double-ups, just keep going. Each tick racks one brick.</p>
+        <p class="lead">Tick one box for each 1-hour session. The third session finishes the lap and racks its brick. Missed a session? No double-ups, just keep going.</p>
       </div>
       <div class="phases" id="phases"></div>
     </div>
@@ -542,7 +552,7 @@ footer .wrap { padding-block: 24px 40px; border-top: 1px solid var(--line); disp
     <div class="confirm">
       <button id="clear" type="button">Clear progress</button>
       <span id="clear-confirm" class="confirm" hidden>
-        <span>Clear all 42 ticks?</span>
+        <span>Clear all progress?</span>
         <button id="clear-yes" type="button">Clear</button>
         <button id="clear-no" type="button">Keep</button>
       </span>
@@ -635,7 +645,7 @@ const STINTS = [
   { name: "Stint 1", min: 20, note: "Phone in another room. Eyes on the task." },
   { name: "Stretch", min: 5, note: "Stand up, walk around, drink some water." },
   { name: "Stint 2", min: 20, note: "Back in the car. Same task, full focus." },
-  { name: "Cool-down", min: 10, note: "Make 3 to 5 flashcards, then tick today's box." }
+  { name: "Cool-down", min: 10, note: "Make 3 to 5 flashcards, then tick today's session." }
 ];
 
 const BOARD = [
@@ -658,20 +668,50 @@ const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(2, "0");
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
+const SESSIONS = ["Session 1: watch and learn", "Session 2: practice", "Session 3: Saturday hands-on"];
+
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORE_KEY)) || {};
-    return { done: saved.done || {}, driver: saved.driver || "", board: saved.board || 0 };
+    const done = saved.done || {};
+    const sessions = saved.sessions || {};
+    /* Laps ticked before session ticks existed count as all three sessions done. */
+    for (const id of Object.keys(done).filter(isLap)) {
+      sessions[id] = [true, true, true];
+      delete done[id];
+    }
+    return { done, sessions, driver: saved.driver || "", board: saved.board || 0, sound: saved.sound !== false };
   } catch {
-    return { done: {}, driver: "", board: 0 };
+    return { done: {}, sessions: {}, driver: "", board: 0, sound: true };
   }
 }
+function isLap(id) { return id.startsWith("lap-"); }
 const state = loadState();
 function saveState() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch { /* storage blocked: progress lasts this visit only */ }
 }
-const isDone = id => !!state.done[id];
+const sessionsOf = id => state.sessions[id] || [false, false, false];
+const isDone = id => isLap(id) ? sessionsOf(id).every(Boolean) : !!state.done[id];
 const lapsDone = () => LAPS.filter(l => isDone(l.id)).length;
+
+/* Sound cues */
+function playSfx(name) {
+  if (!state.sound) return;
+  const el = $("sfx-" + name);
+  el.currentTime = 0;
+  el.play().catch(() => { /* blocked until the visitor interacts with the page */ });
+}
+
+function setupSound() {
+  const toggle = $("sound-toggle");
+  const show = () => { toggle.textContent = state.sound ? "Mute sounds" : "Unmute sounds"; };
+  show();
+  toggle.addEventListener("click", () => {
+    state.sound = !state.sound;
+    saveState();
+    show();
+  });
+}
 
 /* Hero video */
 function setupVideo() {
@@ -842,14 +882,24 @@ function buildPlan() {
       </div>
       <ul class="items">
         ${ITEMS.filter(it => it.phase === p.id).map(it => {
-          const ms = it.id.startsWith("m-");
-          return `<li class="item${ms ? " milestone" : ""}" id="row-${it.id}">
-            <label>
-              <input type="checkbox" data-id="${it.id}">
-              <span class="tag">${ms ? "◆" : "L" + pad(it.lap)}</span>
+          if (isLap(it.id)) return `<li class="item" id="row-${it.id}">
+            <div class="row">
+              <span class="sessions">${SESSIONS.map((name, s) =>
+                `<input type="checkbox" data-lap="${it.id}" data-s="${s}" aria-label="Lap ${it.lap}, ${name}" title="${name}">`).join("")}</span>
+              <span class="tag">L${pad(it.lap)}</span>
               <span class="text">
                 <span class="title">${it.title}</span>
-                <span class="sat">${ms ? "Milestone · Lap " + it.lap : "Saturday: " + it.sat}</span>
+                <span class="sat">Saturday: ${it.sat}</span>
+              </span>
+            </div>
+          </li>`;
+          return `<li class="item milestone" id="row-${it.id}">
+            <label class="row">
+              <input type="checkbox" data-id="${it.id}">
+              <span class="tag">◆</span>
+              <span class="text">
+                <span class="title">${it.title}</span>
+                <span class="sat">Milestone · Lap ${it.lap}</span>
               </span>
             </label>
           </li>`;
@@ -858,8 +908,17 @@ function buildPlan() {
     </section>`).join("");
 
   $("phases").addEventListener("change", e => {
-    const id = e.target.dataset.id;
-    if (e.target.checked) state.done[id] = true; else delete state.done[id];
+    const box = e.target;
+    const id = box.dataset.lap || box.dataset.id;
+    if (box.dataset.lap) {
+      const sessions = sessionsOf(id).with(Number(box.dataset.s), box.checked);
+      if (sessions.some(Boolean)) state.sessions[id] = sessions; else delete state.sessions[id];
+    } else if (box.checked) state.done[id] = true;
+    else delete state.done[id];
+    if (box.checked) {
+      playSfx("snap");
+      if (isLap(id) && isDone(id)) playSfx("lap");
+    }
     saveState();
     update(id);
   });
@@ -901,7 +960,10 @@ function update(changed) {
 
   for (const it of ITEMS) {
     const row = $("row-" + it.id);
-    row.querySelector("input").checked = done(it);
+    if (isLap(it.id)) {
+      const sessions = sessionsOf(it.id);
+      row.querySelectorAll("input").forEach((box, s) => { box.checked = sessions.at(s); });
+    } else row.querySelector("input").checked = done(it);
     row.classList.toggle("done", done(it));
     row.querySelector(".chip")?.remove();
   }
@@ -982,7 +1044,7 @@ function drawTimer() {
 }
 
 function beep() {
-  if (!timer.audio) return;
+  if (!timer.audio || !state.sound) return;
   const ctx = timer.audio;
   [0, 0.3].forEach(t => {
     const osc = ctx.createOscillator();
@@ -1038,7 +1100,7 @@ function step() {
     if (timer.seg === STINTS.length - 1) {
       stopTimer();
       resetTimer();
-      $("seg-note").textContent = "Session done. Tick today's box in the race plan.";
+      $("seg-note").textContent = "Session done. Tick today's session in the race plan.";
       return;
     }
     nextSegment();
@@ -1063,6 +1125,7 @@ $("go").addEventListener("click", async () => {
   }
   try { timer.audio ||= new AudioContext(); } catch { timer.audio = null; }
   if (timer.seg === 0 && timer.left === STINTS[0].min * 60000) {
+    playSfx("start");
     timer.busy = true;
     $("go").disabled = true;
     await lightsOut();
@@ -1093,6 +1156,7 @@ $("clear").addEventListener("click", () => { $("clear-confirm").hidden = false; 
 $("clear-no").addEventListener("click", () => { $("clear-confirm").hidden = true; $("clear").hidden = false; });
 $("clear-yes").addEventListener("click", () => {
   state.done = {};
+  state.sessions = {};
   saveState();
   racked = 0;
   update();
@@ -1101,6 +1165,7 @@ $("clear-yes").addEventListener("click", () => {
 });
 
 setupVideo();
+setupSound();
 buildPlan();
 buildScore();
 buildTimer();
