@@ -151,7 +151,7 @@ h1 .amp { color: var(--teal); text-shadow: 0 0 22px var(--teal-glow), 0 0 4px va
 .cal { color: var(--silver); font-size: .85rem; }
 .next { max-width: 30ch; font-size: .85rem; }
 .next strong { color: var(--white); font-weight: 500; }
-.hero-tools { position: absolute; top: calc(var(--hud-in) + 12px); right: calc(max(var(--hud-in), env(safe-area-inset-right, 0px)) + 12px); display: flex; gap: 8px; }
+.hero-tools { position: absolute; top: calc(var(--hud-in) + 12px); right: calc(max(var(--hud-in), env(safe-area-inset-right, 0px)) + 12px); left: calc(max(var(--hud-in), env(safe-area-inset-left, 0px)) + 12px); display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .hero-tools button { font-size: .75rem; padding: 6px 10px; background: rgba(18,18,18,.7); }
 
 /* Circuit */
@@ -386,6 +386,7 @@ footer .wrap { padding-block: 24px 72px; border-top: 1px solid var(--line); disp
   <div class="hero-mesh" aria-hidden="true"></div>
   <div class="hero-tools">
     <button id="sound-toggle" type="button" inert>Mute sounds</button>
+    <button id="video-sound" type="button">Video sound on</button>
     <button id="video-toggle" type="button">Pause video</button>
   </div>
   <audio id="sfx-start" src="media/timer-start.mp3" preload="auto"></audio>
@@ -778,14 +779,27 @@ $("sound-toggle").addEventListener("click", () => { state.sound = !state.sound; 
 function setupVideo() {
   const video = $("hero-video");
   const toggle = $("video-toggle");
-  const show = () => { toggle.textContent = video.paused ? "Play video" : "Pause video"; };
+  const sound = $("video-sound");
+  const show = () => {
+    toggle.textContent = video.paused ? "Play video" : "Pause video";
+    sound.textContent = video.muted ? "Video sound on" : "Video sound off";
+  };
   video.addEventListener("play", show);
   video.addEventListener("pause", show);
+  video.addEventListener("volumechange", show);
   if (reducedMotion.matches) { video.removeAttribute("autoplay"); video.pause(); }
   show();
   toggle.addEventListener("click", () => {
     if (video.paused) video.play().catch(show);
     else video.pause();
+  });
+  /* Browsers only autoplay muted video, so sound starts from a click, from the top of the trailer. */
+  sound.addEventListener("click", () => {
+    video.muted = !video.muted;
+    if (!video.muted) {
+      video.currentTime = 0;
+      video.play().catch(show);
+    }
   });
 }
 
